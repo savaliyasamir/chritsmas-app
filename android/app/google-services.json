@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "912955786619",
+    "project_id": "christmas-app-43e68",
+    "storage_bucket": "christmas-app-43e68.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:912955786619:android:791c876e7df0314c9c69de",
+        "android_client_info": {
+          "package_name": "com.monjila.christmasapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7EhZy-Xt9-QbeF20xKadE_D4nWVhtlgY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

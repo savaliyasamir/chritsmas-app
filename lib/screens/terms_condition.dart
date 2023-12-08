@@ -6,7 +6,10 @@ import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:Santa_prank_call/widget/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:startapp_sdk/startapp.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+String adType = "1";
 
 class TermsConditionScreen extends StatefulWidget {
   const TermsConditionScreen({Key? key}) : super(key: key);
@@ -15,12 +18,15 @@ class TermsConditionScreen extends StatefulWidget {
   State<TermsConditionScreen> createState() => _TermsConditionScreenState();
 }
 
-class _TermsConditionScreenState extends State<TermsConditionScreen> with WidgetsBindingObserver{
+class _TermsConditionScreenState extends State<TermsConditionScreen>
+    with WidgetsBindingObserver {
   bool value = false;
   bool value1 = false;
   late BannerAd _bannerAd;
   bool _isBannerAdReady = false;
   NativeAd? _nativeAd;
+  StartAppInterstitialAd? startAppInterstitialAd;
+
   bool _nativeAdIsLoaded = false;
   String? _versionString;
   InterstitialAd? _interstitialAd;
@@ -36,16 +42,38 @@ class _TermsConditionScreenState extends State<TermsConditionScreen> with Widget
       : 'ca-app-pub-3940256099942544/4411468910';
   final Uri _disclamierLink = Uri.parse(getStorage.read("DisclamierLink"));
   final Uri _termsLink = Uri.parse(getStorage.read("TermsLink"));
+  StartAppBannerAd? mrecAd;
 
+  var startAppSdk = StartAppSdk();
+
+  StartAppBannerAd? bannerAd;
 
   @override
   void initState() {
     super.initState();
+    startAppSdk.setTestAdsEnabled(true);
     appOpenAdManager.loadAd();
     _loadAd();
     _loadVersionString();
-  }
 
+
+    if (adType == "1") {
+      startAppSdk
+          .loadBannerAd(
+        StartAppBannerType.MREC,
+        prefs: const StartAppAdPreferences(adTag: 'secondary'),
+      )
+          .then((mrecAd) {
+        setState(() {
+          this.mrecAd = mrecAd;
+        });
+      }).onError<StartAppException>((ex, stackTrace) {
+        debugPrint("Error loading Mrec ad: ${ex.message}");
+      }).onError((error, stackTrace) {
+        debugPrint("Error loading Mrec ad: $error");
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +92,7 @@ class _TermsConditionScreenState extends State<TermsConditionScreen> with Widget
               decoration: BoxDecoration(
                   color: PinkColor,
                   borderRadius:
-                      BorderRadius.only(bottomLeft: Radius.circular(100))),
+                  BorderRadius.only(bottomLeft: Radius.circular(100))),
               height: MediaQuery.of(context).size.height * 0.28,
               width: MediaQuery.of(context).size.width,
               child: Column(
@@ -116,9 +144,9 @@ class _TermsConditionScreenState extends State<TermsConditionScreen> with Widget
                         border: Border.all(color: Color(0xff851D1B))),
                     child: value == true
                         ? Icon(
-                            Icons.check_rounded,
-                            size: 18,
-                          )
+                      Icons.check_rounded,
+                      size: 18,
+                    )
                         : SizedBox(),
                   ),
                 ),
@@ -127,15 +155,10 @@ class _TermsConditionScreenState extends State<TermsConditionScreen> with Widget
                 ),
                 Container(
                   width: MediaQuery.of(context).size.width * 0.8,
-                  child: GestureDetector(
-                    onTap: () {
-                      _launchUrl(_termsLink.toString());
-                    },
-                    child: Text(
-                      "Kindly review our comprehensive Terms \nand Condition",
-                      style: TextStyle(
-                        fontSize: 17,
-                      ),
+                  child: Text(
+                    "Kindly review our comprehensive Terms \nand Condition",
+                    style: TextStyle(
+                      fontSize: 17,
                     ),
                   ),
                 )
@@ -165,9 +188,9 @@ class _TermsConditionScreenState extends State<TermsConditionScreen> with Widget
                         border: Border.all(color: Color(0xff851D1B))),
                     child: value1 == true
                         ? Icon(
-                            Icons.check_rounded,
-                            size: 18,
-                          )
+                      Icons.check_rounded,
+                      size: 18,
+                    )
                         : SizedBox(),
                   ),
                 ),
@@ -176,15 +199,10 @@ class _TermsConditionScreenState extends State<TermsConditionScreen> with Widget
                 ),
                 Container(
                   width: MediaQuery.of(context).size.width * 0.8,
-                  child: GestureDetector(
-                    onTap: () {
-                      _launchUrl(_disclamierLink.toString());
-                    },
-                    child: Text(
-                      "Please take a moment to review our\nDisclaimer statement",
-                      style: TextStyle(
-                        fontSize: 17,
-                      ),
+                  child: Text(
+                    "Please take a moment to review our\nDisclaimer statement",
+                    style: TextStyle(
+                      fontSize: 17,
                     ),
                   ),
                 )
@@ -193,36 +211,78 @@ class _TermsConditionScreenState extends State<TermsConditionScreen> with Widget
             SizedBox(
               height: 20,
             ),
-            Center(
-              child: Text(
-                "Please read our Terms and Conditions",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            GestureDetector(
+              onTap: () {
+                _launchUrl(_termsLink.toString());
+              },
+              child: Center(
+                child: Text(
+                  "Please read our Terms and Conditions",
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-            Center(
-              child: Text(
-                "Please read our Disclaimer",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            GestureDetector(
+              onTap: () {
+                _launchUrl(_disclamierLink.toString());
+              },
+              child: Center(
+                child: Text(
+                  "Please read our Disclaimer",
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-
             SizedBox(
               height: 15,
             ),
             GestureDetector(
               onTap: () async {
-
                 if (value == false || value1 == false) {
                   showValidationSnackBar(
                     "Please Accept the terms and conditions!",
                   );
                 } else {
+                  if (adType == "1") {
+                    try {
+                      await startAppSdk.loadInterstitialAd(
+                        prefs: const StartAppAdPreferences(adTag: 'home_screen'),
+                        onAdDisplayed: () {
+                          debugPrint('onAdDisplayed: interstitial');
+                        },
 
+                        onAdNotDisplayed: () {
+                          debugPrint('onAdNotDisplayed: interstitial');
+
+                          // NOTE interstitial ad can be shown only once
+                          this.startAppInterstitialAd?.dispose();
+                          this.startAppInterstitialAd = null;
+                        },
+                        onAdClicked: () {
+                          debugPrint('onAdClicked: interstitial');
+                        },
+                        onAdHidden: () {
+                          debugPrint('onAdHidden: interstitial');
+
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => CallTypeScreen()));
+                          this.startAppInterstitialAd?.dispose();
+                          this.startAppInterstitialAd = null;
+                        },
+                      ).then((interstitialAd) {
+                        this.startAppInterstitialAd = interstitialAd;
+                        interstitialAd?.show();
+                      });
+                    } on StartAppException catch (ex) {
+                      debugPrint("Error loading or showing Interstitial ad: ${ex.message}");
+                    } catch (error, stackTrace) {
+                      debugPrint("Error loading or showing Interstitial ad: $error");
+                    }
+                  }else{
                     if (!isAdLoading) {
                       _loadAdInterstial();
                     }
-                    // _showRewardedInterstitialAd();
-
+                  }
                 }
               },
               child: Container(
@@ -230,19 +290,33 @@ class _TermsConditionScreenState extends State<TermsConditionScreen> with Widget
                 height: 40,
                 width: 180,
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20), color: Colors.red),
-                child: Text("Let's go",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold)),
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.red,
+                ),
+                child: Text(
+                  "Let's go",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
-            if (_nativeAdIsLoaded && _nativeAd != null)
+
+
               Container(
                   height: MediaQuery.of(context).size.height * 0.4,
                   width: MediaQuery.of(context).size.width,
-                  child: AdWidget(ad: _nativeAd!)),
+                  child: (adType == "1" && mrecAd != null)
+                      ? StartAppBanner(mrecAd!)
+                      : (_nativeAdIsLoaded && _nativeAd != null)
+                      ? Container(
+                    height: MediaQuery.of(context).size.height * 0.4,
+                    width: MediaQuery.of(context).size.width,
+                    child: AdWidget(ad: _nativeAd!),
+                  )
+                      : SizedBox()),
           ],
         ),
       ),
@@ -257,7 +331,7 @@ class _TermsConditionScreenState extends State<TermsConditionScreen> with Widget
   }
 
   void _loadAdInterstial() {
- isAdLoading = true;
+    isAdLoading = true;
 
     InterstitialAd.load(
       adUnitId: _adUnitId,
@@ -268,22 +342,17 @@ class _TermsConditionScreenState extends State<TermsConditionScreen> with Widget
             onAdShowedFullScreenContent: (ad) {},
             onAdImpression: (ad) {},
             onAdFailedToShowFullScreenContent: (ad, err) {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => CallTypeScreen()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => CallTypeScreen()));
               ad.dispose();
-               isAdLoading = false;
-
+              isAdLoading = false;
             },
             onAdDismissedFullScreenContent: (ad) {
               setState(() {
                 ad.dispose();
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => CallTypeScreen()));
-                isAdLoading = false;// Dispose only when ad is dismissed
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => CallTypeScreen()));
+                isAdLoading = false; // Dispose only when ad is dismissed
               });
             },
             onAdClicked: (ad) {},
@@ -294,10 +363,8 @@ class _TermsConditionScreenState extends State<TermsConditionScreen> with Widget
           });
         },
         onAdFailedToLoad: (LoadAdError error) {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => CallTypeScreen()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => CallTypeScreen()));
           isAdLoading = false;
           print('InterstitialAd failed to load: $error');
         },
@@ -365,9 +432,11 @@ class _TermsConditionScreenState extends State<TermsConditionScreen> with Widget
       });
     });
   }
+
   Future<void> _launchUrl(String _url) async {
     if (!await launchUrl(Uri.parse(_url.toString()))) {
-     return showSnackBarWithTitleAndText("Alert", "There is no terms and condition right now");
+      return showSnackBarWithTitleAndText(
+          "Alert", "There is no terms and condition right now");
     }
   }
 
@@ -379,6 +448,7 @@ class _TermsConditionScreenState extends State<TermsConditionScreen> with Widget
 
     super.dispose();
   }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);

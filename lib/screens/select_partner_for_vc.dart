@@ -3,12 +3,14 @@ import 'dart:io';
 import 'package:Santa_prank_call/main.dart';
 import 'package:Santa_prank_call/screens/attend_call.dart';
 import 'package:Santa_prank_call/screens/attendcall_screen.dart';
+import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/ads.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:Santa_prank_call/widget/constant.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:startapp_sdk/startapp.dart';
 
 class SelectYourFav extends StatefulWidget {
   const SelectYourFav({Key? key}) : super(key: key);
@@ -19,6 +21,10 @@ class SelectYourFav extends StatefulWidget {
 
 class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserver{
   late BannerAd bannerAd;
+  StartAppInterstitialAd? startAppInterstitialAd;
+  var startAppSdk = StartAppSdk();
+  StartAppBannerAd? startAppBannerAd;
+  StartAppBannerAd? mrecAd;
   bool isAdLoading = false;
   bool isAdLoaded = false;
   List<String> _videoCallerUSerList = [
@@ -58,6 +64,22 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
     appOpenAdManager.loadAd();
     WidgetsBinding.instance.addObserver(this);
     // _createRewardedInterstitialAd();
+    if (adType == "1") {
+      startAppSdk
+          .loadBannerAd(
+        StartAppBannerType.BANNER,
+        prefs: const StartAppAdPreferences(adTag: 'secondary'),
+      )
+          .then((mrecAd) {
+        setState(() {
+          this.mrecAd = mrecAd;
+        });
+      }).onError<StartAppException>((ex, stackTrace) {
+        debugPrint("Error loading Mrec ad: ${ex.message}");
+      }).onError((error, stackTrace) {
+        debugPrint("Error loading Mrec ad: $error");
+      });
+    }
 
     // facebookBannerAd = FacebookBannerAd(
     //   placementId: "IMG_16_9_APP_INSTALL#2312433698835503_2964944860251047",
@@ -220,10 +242,51 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
                 padding: EdgeInsets.zero,
                 itemBuilder: (context, index) {
                   return GestureDetector(
-                    onTap: () {
-                      if (!isAdLoading) {
-                        _loadAdInterstial(index);
-                      }
+                    onTap: () async{
+
+                        if (adType == "1") {
+                          try {
+                            await startAppSdk.loadInterstitialAd(
+                              prefs: const StartAppAdPreferences(adTag: 'home_screen'),
+                              onAdDisplayed: () {
+                                debugPrint('onAdDisplayed: interstitial');
+                              },
+
+                              onAdNotDisplayed: () {
+                                debugPrint('onAdNotDisplayed: interstitial');
+
+                                // NOTE interstitial ad can be shown only once
+                                this.startAppInterstitialAd?.dispose();
+                                this.startAppInterstitialAd = null;
+                              },
+                              onAdClicked: () {
+                                debugPrint('onAdClicked: interstitial');
+                              },
+                              onAdHidden: () {
+                                debugPrint('onAdHidden: interstitial');
+
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) => AttendCallScreenForVc(
+                                      indexnumber: index,
+                                    )));
+                                this.startAppInterstitialAd?.dispose();
+                                this.startAppInterstitialAd = null;
+                              },
+                            ).then((interstitialAd) {
+                              this.startAppInterstitialAd = interstitialAd;
+                              interstitialAd?.show();
+                            });
+                          } on StartAppException catch (ex) {
+                            debugPrint("Error loading or showing Interstitial ad: ${ex.message}");
+                          } catch (error, stackTrace) {
+                            debugPrint("Error loading or showing Interstitial ad: $error");
+                          }
+                        }else{
+                          if (!isAdLoading) {
+                            _loadAdInterstial(index);
+                          }
+                        }
+
                       // _showRewardedInterstitialAd();
                     },
                     child: Stack(
@@ -248,7 +311,12 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
               ),
             )
           ])),
-      bottomNavigationBar: isAdLoaded
+      bottomNavigationBar:(adType == "1" && mrecAd != null)
+          ? SizedBox(
+          height: bannerAd.size.height.toDouble(),
+          width: bannerAd.size.width.toDouble(),
+          child:StartAppBanner(mrecAd!) )
+          :   isAdLoaded
           ? SizedBox(
               height: bannerAd.size.height.toDouble(),
               width: bannerAd.size.width.toDouble(),

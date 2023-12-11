@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:Santa_prank_call/main.dart';
 import 'package:Santa_prank_call/screens/select_country.dart';
+import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:Santa_prank_call/widget/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:startapp_sdk/startapp.dart';
 
 class AcceptPolicyScreen extends StatefulWidget {
   const AcceptPolicyScreen({Key? key}) : super(key: key);
@@ -18,8 +20,9 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
     with WidgetsBindingObserver {
   NativeAd? _nativeAd;
   bool isAdLoading = false;
-
+  StartAppInterstitialAd? startAppInterstitialAd;
   bool _nativeAdIsLoaded = false;
+  var startAppSdk = StartAppSdk();
   String? _versionString;
   final String _adUnitId = Platform.isAndroid
       ? InterstialAdID
@@ -29,16 +32,35 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
   int _tapCounter = 0;
+  StartAppBannerAd? mrecAd;
   final double _adAspectRatioSmall = (91 / 355);
   final double _adAspectRatioMedium = (370 / 355);
 
   @override
   void initState() {
     super.initState();
+    startAppSdk.setTestAdsEnabled(true);
     appOpenAdManager.loadAd();
     WidgetsBinding.instance.addObserver(this);
     _loadAd();
     _loadVersionString();
+    if (adType == "1") {
+      startAppSdk
+          .loadBannerAd(
+        StartAppBannerType.MREC,
+        prefs: const StartAppAdPreferences(adTag: 'secondary'),
+      )
+          .then((mrecAd) {
+        setState(() {
+          this.mrecAd = mrecAd;
+        });
+      }).onError<StartAppException>((ex, stackTrace) {
+        debugPrint("Error loading Mrec ad: ${ex.message}");
+      }).onError((error, stackTrace) {
+        debugPrint("Error loading Mrec ad: $error");
+      });
+    }
+
   }
 
   @override
@@ -177,8 +199,55 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
             ),
             GestureDetector(
               onTap: () async {
-                if (!isAdLoading) {
-                  _loadAdInterstial();
+                if (adType == "1") {
+                  try {
+                    await startAppSdk.loadInterstitialAd(
+                      prefs: const StartAppAdPreferences(adTag: 'home_screen'),
+                      onAdDisplayed: () {
+                        debugPrint('onAdDisplayed: interstitial');
+                      },
+
+                      onAdNotDisplayed: () {
+                        debugPrint('onAdNotDisplayed: interstitial');
+
+                        // NOTE interstitial ad can be shown only once
+                        this.startAppInterstitialAd?.dispose();
+                        this.startAppInterstitialAd = null;
+                      },
+                      onAdClicked: () {
+                        debugPrint('onAdClicked: interstitial');
+                      },
+                      onAdHidden: () {
+                        debugPrint('onAdHidden: interstitial');
+
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SelectCountriescreen()));
+                        this.startAppInterstitialAd?.dispose();
+                        this.startAppInterstitialAd = null;
+                      },
+                    ).then((interstitialAd) {
+                      this.startAppInterstitialAd = interstitialAd;
+                      interstitialAd?.show();
+                    });
+                  } on StartAppException catch (ex) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SelectCountriescreen()));
+                    debugPrint("Error loading or showing Interstitial ad: ${ex.message}");
+                  } catch (error, stackTrace) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SelectCountriescreen()));
+                    debugPrint("Error loading or showing Interstitial ad: $error");
+                  }
+                }else{
+                  if (!isAdLoading) {
+                    _loadAdInterstial();
+                  }
                 }
               },
               child: Container(
@@ -203,9 +272,17 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
             ),
             if (_nativeAdIsLoaded && _nativeAd != null)
               Container(
-                  height: MediaQuery.of(context).size.height * 0.5,
+                  height: MediaQuery.of(context).size.height * 0.4,
                   width: MediaQuery.of(context).size.width,
-                  child: AdWidget(ad: _nativeAd!)),
+                  child: (adType == "1" && mrecAd != null)
+                      ? StartAppBanner(mrecAd!)
+                      : (_nativeAdIsLoaded && _nativeAd != null)
+                      ? Container(
+                    height: MediaQuery.of(context).size.height * 0.5,
+                    width: MediaQuery.of(context).size.width,
+                    child: AdWidget(ad: _nativeAd!),
+                  )
+                      : SizedBox()),
           ],
         ),
       ),

@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:Santa_prank_call/main.dart';
 import 'package:Santa_prank_call/screens/SorryScreen.dart';
 import 'package:Santa_prank_call/screens/select_partner_for_vc.dart';
+import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:startapp_sdk/startapp.dart';
 
 import '../widget/constant.dart';
 
@@ -20,6 +22,9 @@ class SeletctCategerioesScreen extends StatefulWidget {
 class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
     with WidgetsBindingObserver {
   bool isAdLoaded = false;
+
+  StartAppInterstitialAd? startAppInterstitialAd;
+  var startAppSdk = StartAppSdk();
   bool isAdLoading = false;
   List<String> _videoCallerList = [
     "assets/ic_santa.png",
@@ -29,7 +34,8 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
     "assets/ic_influencer.png"
   ];
   BannerAd? _bannerAd;
-
+  StartAppBannerAd? startAppBannerAd;
+  StartAppBannerAd? mrecAd;
   final String adUnitId = Platform.isAndroid
       ? getStorage.read("BannerAdId")
       : 'ca-app-pub-3940256099942544/2934735716';
@@ -46,8 +52,25 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
     super.initState();
     // _createRewardedInterstitialAd();
     appOpenAdManager.loadAd();
+    startAppSdk.setTestAdsEnabled(true);
     WidgetsBinding.instance.addObserver(this);
     _loadAd();
+    if (adType == "1") {
+      startAppSdk
+          .loadBannerAd(
+        StartAppBannerType.BANNER,
+        prefs: const StartAppAdPreferences(adTag: 'secondary'),
+      )
+          .then((mrecAd) {
+        setState(() {
+          this.mrecAd = mrecAd;
+        });
+      }).onError<StartAppException>((ex, stackTrace) {
+        debugPrint("Error loading Mrec ad: ${ex.message}");
+      }).onError((error, stackTrace) {
+        debugPrint("Error loading Mrec ad: $error");
+      });
+    }
   }
 
   InterstitialAd? interstitialAd;
@@ -107,11 +130,47 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
                     padding: EdgeInsets.zero,
                     itemBuilder: (context, index) {
                       return GestureDetector(
-                        onTap: () {
+                        onTap: () async {
                           if(index == 0){
-                            if(!isAdLoading )
-                            {
-                              _loadAdInterstial();
+                            if (adType == "1") {
+                              try {
+                                await startAppSdk.loadInterstitialAd(
+                                  prefs: const StartAppAdPreferences(adTag: 'home_screen'),
+                                  onAdDisplayed: () {
+                                    debugPrint('onAdDisplayed: interstitial');
+                                  },
+
+                                  onAdNotDisplayed: () {
+                                    debugPrint('onAdNotDisplayed: interstitial');
+
+                                    // NOTE interstitial ad can be shown only once
+                                    this.startAppInterstitialAd?.dispose();
+                                    this.startAppInterstitialAd = null;
+                                  },
+                                  onAdClicked: () {
+                                    debugPrint('onAdClicked: interstitial');
+                                  },
+                                  onAdHidden: () {
+                                    debugPrint('onAdHidden: interstitial');
+
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (context) => SelectYourFav()));
+                                    this.startAppInterstitialAd?.dispose();
+                                    this.startAppInterstitialAd = null;
+                                  },
+                                ).then((interstitialAd) {
+                                  this.startAppInterstitialAd = interstitialAd;
+                                  interstitialAd?.show();
+                                });
+                              } on StartAppException catch (ex) {
+                                debugPrint("Error loading or showing Interstitial ad: ${ex.message}");
+                              } catch (error, stackTrace) {
+                                debugPrint("Error loading or showing Interstitial ad: $error");
+                              }
+                            }else{
+                              if (!isAdLoading) {
+                                _loadAdInterstial();
+                              }
                             }
                           }
 
@@ -137,7 +196,9 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
           alignment: Alignment.center,
           height: 60,
           color: Colors.black12,
-          child: _bannerAd != null
+          child:(adType == "1" && mrecAd != null)
+              ? StartAppBanner(mrecAd!)
+              :  _bannerAd != null
               ? SizedBox(
                   width: _bannerAd!.size.width.toDouble(),
                   height: _bannerAd!.size.height.toDouble(),

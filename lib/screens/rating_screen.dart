@@ -2,11 +2,13 @@ import 'dart:io';
 
 import 'package:Santa_prank_call/main.dart';
 import 'package:Santa_prank_call/screens/selet_categories.dart';
+import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:startapp_sdk/startapp.dart';
 
 import '../widget/constant.dart';
 
@@ -17,7 +19,8 @@ class RatingScreen extends StatefulWidget {
   State<RatingScreen> createState() => _RatingScreenState();
 }
 
-class _RatingScreenState extends State<RatingScreen> with WidgetsBindingObserver {
+class _RatingScreenState extends State<RatingScreen>
+    with WidgetsBindingObserver {
   NativeAd? _nativeAd;
   bool _nativeAdIsLoaded = false;
   bool isAdLoading = false;
@@ -27,6 +30,10 @@ class _RatingScreenState extends State<RatingScreen> with WidgetsBindingObserver
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
   int _tapCounter = 0;
+  StartAppBannerAd? mrecAd;
+  var startAppSdk = StartAppSdk();
+  StartAppInterstitialAd? startAppInterstitialAd;
+
   final String _adUnitId = Platform.isAndroid
       ? InterstialAdID
       : 'ca-app-pub-3940256099942544/4411468910';
@@ -37,6 +44,25 @@ class _RatingScreenState extends State<RatingScreen> with WidgetsBindingObserver
   void initState() {
     super.initState();
     appOpenAdManager.loadAd();
+    startAppSdk.setTestAdsEnabled(true);
+
+    if (adType == "1") {
+      startAppSdk
+          .loadBannerAd(
+        StartAppBannerType.MREC,
+        prefs: const StartAppAdPreferences(adTag: 'secondary'),
+      )
+          .then((mrecAd) {
+        setState(() {
+          this.mrecAd = mrecAd;
+        });
+      }).onError<StartAppException>((ex, stackTrace) {
+        debugPrint("Error loading Mrec ad: ${ex.message}");
+      }).onError((error, stackTrace) {
+        debugPrint("Error loading Mrec ad: $error");
+      });
+    }
+
     WidgetsBinding.instance.addObserver(this);
     _loadAd();
     _loadVersionString();
@@ -46,8 +72,9 @@ class _RatingScreenState extends State<RatingScreen> with WidgetsBindingObserver
   Widget build(BuildContext context) {
     Future<bool> _onBackPressed() async {
       return await showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
+        context: context,
+        builder: (context) =>
+            AlertDialog(
               title: Text('Are you sure?'),
               content: Text('Do you want to exit the app?'),
               actions: [
@@ -61,141 +88,235 @@ class _RatingScreenState extends State<RatingScreen> with WidgetsBindingObserver
                 ),
               ],
             ),
-          ) ??
+      ) ??
           false;
     }
 
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
-        body: Container(
-          height: MediaQuery.of(context).size.height,
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(20),
-                alignment: Alignment.bottomLeft,
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.13,
-                decoration: BoxDecoration(
-                  color: PinkColor,
-                  borderRadius:
-                      BorderRadius.only(bottomRight: Radius.circular(100)),
-                ),
-                child: Text(
-                  "How was your experience?",
-                  style: TextStyle(
-                      fontSize: 27,
-                      color: textcolor,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              RatingBar.builder(
-                initialRating: 3,
-                minRating: 1,
-                itemSize: 50,
-                direction: Axis.horizontal,
-                allowHalfRating: true,
-                itemCount: 5,
-                itemBuilder: (context, _) => Icon(
-                  Icons.star,
-                  size: 20,
-                  color: Colors.orangeAccent,
-                ),
-                unratedColor: Colors.black12,
-                onRatingUpdate: (rating) {},
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              Text(
-                "Rate your video call on a\nscale of 1 to 5.",
-                style: TextStyle(
-                    color: textcolor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(
-                height: 60,
-              ),
-              Text(
-                "Your feedback helps us to improve!.",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(
-                height: 60,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-
-                        if (!isAdLoading) {
-                          _loadAdInterstial();
-                        }
-                      });
-
-                    },
-                    child: Container(
-                      alignment: Alignment.center,
-                      height: 40,
-                      width: 150,
-                      decoration: BoxDecoration(
-                        color: PinkColor,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        "Skip",
-                        style: TextStyle(
-                            color: textcolor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      if (!isAdLoading) {
-                        _loadAdInterstial();
-                      }
-                    },
-                    child: Container(
-                      alignment: Alignment.center,
-                      height: 40,
-                      width: 150,
-                      decoration: BoxDecoration(
-                        color: PinkColor,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        "Submit",
-                        style: TextStyle(
-                            color: textcolor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Spacer(),
-              if (_nativeAdIsLoaded && _nativeAd != null)
+        body: SingleChildScrollView(
+          child: Container(
+            height: MediaQuery
+                .of(context)
+                .size
+                .height,
+            child: Column(
+              children: [
                 Container(
-                    height: MediaQuery.of(context).size.height * 0.43,
+                  padding: EdgeInsets.all(20),
+                  alignment: Alignment.bottomLeft,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width,
+                  height: MediaQuery
+                      .of(context)
+                      .size
+                      .height * 0.13,
+                  decoration: BoxDecoration(
+                    color: PinkColor,
+                    borderRadius:
+                    BorderRadius.only(bottomRight: Radius.circular(100)),
+                  ),
+                  child: Text(
+                    "How was your experience?",
+                    style: TextStyle(
+                        fontSize: 27,
+                        color: textcolor,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                RatingBar.builder(
+                  initialRating: 3,
+                  minRating: 1,
+                  itemSize: 50,
+                  direction: Axis.horizontal,
+                  allowHalfRating: true,
+                  itemCount: 5,
+                  itemBuilder: (context, _) =>
+                      Icon(
+                        Icons.star,
+                        size: 20,
+                        color: Colors.orangeAccent,
+                      ),
+                  unratedColor: Colors.black12,
+                  onRatingUpdate: (rating) {},
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Text(
+                  "Rate your video call on a\nscale of 1 to 5.",
+                  style: TextStyle(
+                      color: textcolor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(
+                  height: 60,
+                ),
+                Text(
+                  "Your feedback helps us to improve!.",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(
+                  height: 60,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        if (adType == "1") {
+                          try {
+                            await startAppSdk.loadInterstitialAd(
+                              prefs: const StartAppAdPreferences(adTag: 'home_screen'),
+                              onAdDisplayed: () {
+                                debugPrint('onAdDisplayed: interstitial');
+                              },
+
+                              onAdNotDisplayed: () {
+                                debugPrint('onAdNotDisplayed: interstitial');
+
+                                // NOTE interstitial ad can be shown only once
+                                this.startAppInterstitialAd?.dispose();
+                                this.startAppInterstitialAd = null;
+                              },
+                              onAdClicked: () {
+                                debugPrint('onAdClicked: interstitial');
+                              },
+                              onAdHidden: () {
+                                debugPrint('onAdHidden: interstitial');
+
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) =>
+                                        SeletctCategerioesScreen()));
+                                this.startAppInterstitialAd?.dispose();
+                                this.startAppInterstitialAd = null;
+                              },
+                            ).then((interstitialAd) {
+                              this.startAppInterstitialAd = interstitialAd;
+                              interstitialAd?.show();
+                            });
+                          } on StartAppException catch (ex) {
+                            debugPrint("Error loading or showing Interstitial ad: ${ex
+                                .message}");
+                          } catch (error, stackTrace) {
+                            debugPrint(
+                                "Error loading or showing Interstitial ad: $error");
+                          }
+                        } else {
+                          if (!isAdLoading) {
+                            _loadAdInterstial();
+                          }
+                        }
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        height: 40,
+                        width: 150,
+                        decoration: BoxDecoration(
+                          color: PinkColor,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          "Skip",
+                          style: TextStyle(
+                              color: textcolor,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        if (adType == "1") {
+                          try {
+                            await startAppSdk.loadInterstitialAd(
+                              prefs: const StartAppAdPreferences(adTag: 'home_screen'),
+                              onAdDisplayed: () {
+                                debugPrint('onAdDisplayed: interstitial');
+                              },
+
+                              onAdNotDisplayed: () {
+                                debugPrint('onAdNotDisplayed: interstitial');
+
+                                // NOTE interstitial ad can be shown only once
+                                this.startAppInterstitialAd?.dispose();
+                                this.startAppInterstitialAd = null;
+                              },
+                              onAdClicked: () {
+                                debugPrint('onAdClicked: interstitial');
+                              },
+                              onAdHidden: () {
+                                debugPrint('onAdHidden: interstitial');
+
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) =>
+                                        SeletctCategerioesScreen()));
+                                this.startAppInterstitialAd?.dispose();
+                                this.startAppInterstitialAd = null;
+                              },
+                            ).then((interstitialAd) {
+                              this.startAppInterstitialAd = interstitialAd;
+                              interstitialAd?.show();
+                            });
+                          } on StartAppException catch (ex) {
+                            debugPrint("Error loading or showing Interstitial ad: ${ex
+                                .message}");
+                          } catch (error, stackTrace) {
+                            debugPrint(
+                                "Error loading or showing Interstitial ad: $error");
+                          }
+                        } else {
+                          if (!isAdLoading) {
+                            _loadAdInterstial();
+                          }
+                        }
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        height: 40,
+                        width: 150,
+                        decoration: BoxDecoration(
+                          color: PinkColor,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          "Submit",
+                          style: TextStyle(
+                              color: textcolor,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Spacer(),
+
+                Container(
+                    height: MediaQuery.of(context).size.height * 0.4,
                     width: MediaQuery.of(context).size.width,
-                    child: AdWidget(ad: _nativeAd!)),
-            ],
+                    child: (adType == "1" && mrecAd != null)
+                        ? StartAppBanner(mrecAd!)
+                        : (_nativeAdIsLoaded && _nativeAd != null)
+                        ? Container(
+                      height: MediaQuery.of(context).size.height * 0.4,
+                      width: MediaQuery.of(context).size.width,
+                      child: AdWidget(ad: _nativeAd!),
+                    )
+                        : SizedBox()),          ],
+            ),
           ),
         ),
-      ),
-    );
+      ),);
   }
 
   /// Loads a native ad.
@@ -258,14 +379,14 @@ class _RatingScreenState extends State<RatingScreen> with WidgetsBindingObserver
       });
     });
   }
+
   void _handleTap() {
     _tapCounter++;
     if (_tapCounter % int.parse(getStorage.read("tapCount").toString()) == 0) {
       _loadAdInterstial();
-
-
     }
   }
+
   void _loadAdInterstial() {
     isAdLoading = true;
     InterstitialAd.load(
@@ -293,7 +414,7 @@ class _RatingScreenState extends State<RatingScreen> with WidgetsBindingObserver
                       (route) => false);
               setState(() {
                 ad.dispose();
-                isAdLoading = false;// Dispose only when ad is dismissed
+                isAdLoading = false; // Dispose only when ad is dismissed
               });
             },
             onAdClicked: (ad) {},
@@ -315,6 +436,7 @@ class _RatingScreenState extends State<RatingScreen> with WidgetsBindingObserver
       ),
     );
   }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // TODO: implement didChangeAppLifecycleState
@@ -328,6 +450,7 @@ class _RatingScreenState extends State<RatingScreen> with WidgetsBindingObserver
       isPaused = false;
     }
   }
+
   @override
   void dispose() {
     _nativeAd?.dispose();

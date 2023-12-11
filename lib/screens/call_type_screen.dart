@@ -1,11 +1,14 @@
+import 'dart:io';
 
 import 'package:Santa_prank_call/main.dart';
 import 'package:Santa_prank_call/screens/accept_policy.dart';
+import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:Santa_prank_call/widget/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'dart:io';
+import 'package:startapp_sdk/startapp.dart';
+
 class CallTypeScreen extends StatefulWidget {
   const CallTypeScreen({Key? key}) : super(key: key);
 
@@ -13,10 +16,14 @@ class CallTypeScreen extends StatefulWidget {
   State<CallTypeScreen> createState() => _CallTypeScreenState();
 }
 
-class _CallTypeScreenState extends State<CallTypeScreen> with WidgetsBindingObserver{
+class _CallTypeScreenState extends State<CallTypeScreen>
+    with WidgetsBindingObserver {
   NativeAd? _nativeAd;
   bool _nativeAdIsLoaded = false;
+  StartAppBannerAd? startAppBannerAd;
   String? _versionString;
+  StartAppBannerAd? mrecAd;
+  StartAppInterstitialAd? startAppInterstitialAd;
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
   final String _adUnitId = Platform.isAndroid
@@ -24,22 +31,42 @@ class _CallTypeScreenState extends State<CallTypeScreen> with WidgetsBindingObse
       : 'ca-app-pub-3940256099942544/4411468910';
   final double _adAspectRatioSmall = (91 / 355);
   final double _adAspectRatioMedium = (370 / 355);
-  InterstitialAd? _interstitialAd;
   int _tapCounter = 0;
   bool isAdLoading = false;
+  var startAppSdk = StartAppSdk();
 
   @override
   void initState() {
     super.initState();
     appOpenAdManager.loadAd();
+    startAppSdk.setTestAdsEnabled(true);
+
     WidgetsBinding.instance.addObserver(this);
     _loadAd();
     _loadVersionString();
+    if (adType == "1") {
+      startAppSdk
+          .loadBannerAd(
+        StartAppBannerType.BANNER,
+        prefs: const StartAppAdPreferences(adTag: 'secondary'),
+      )
+          .then((mrecAd) {
+        setState(() {
+          this.mrecAd = mrecAd;
+        });
+      }).onError<StartAppException>((ex, stackTrace) {
+        debugPrint("Error loading Mrec ad: ${ex.message}");
+      }).onError((error, stackTrace) {
+        debugPrint("Error loading Mrec ad: $error");
+      });
+    }
   }
+
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-        body: Container(
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Container(
           height: MediaQuery.of(context).size.height,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,35 +112,14 @@ class _CallTypeScreenState extends State<CallTypeScreen> with WidgetsBindingObse
                           fontSize: 18,
                           fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 15,),
+                    SizedBox(
+                      height: 15,
+                    ),
                     Row(
                       children: [
                         Container(
                           width: 150,
                           height: 200,
-
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Container(
-                                height: 170,
-                                width: 150,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                    image: DecorationImage(
-                                        image: AssetImage("assets/voice_img.png"),)),
-                              ),
-                              SizedBox(height: 10,),
-                              Text("Audio Call",style: TextStyle(fontSize: 17,color: Colors.black,fontWeight: FontWeight.bold),)
-                            ],
-                          ),
-                        ),
-                        Spacer(),
-                        Container(
-                          width: 150,
-                          height: 200,
-
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -124,10 +130,50 @@ class _CallTypeScreenState extends State<CallTypeScreen> with WidgetsBindingObse
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(20),
                                     image: DecorationImage(
-                                      image: AssetImage("assets/Voice_call_img.png"),)),
+                                      image: AssetImage("assets/voice_img.png"),
+                                    )),
                               ),
-                              SizedBox(height: 10,),
-                              Text("Video Call",style: TextStyle(fontSize: 17,color: Colors.black,fontWeight: FontWeight.bold),)
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                "Audio Call",
+                                style: TextStyle(
+                                    fontSize: 17,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
+                        ),
+                        Spacer(),
+                        Container(
+                          width: 150,
+                          height: 200,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Container(
+                                height: 170,
+                                width: 150,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                          "assets/Voice_call_img.png"),
+                                    )),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                "Video Call",
+                                style: TextStyle(
+                                    fontSize: 17,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold),
+                              )
                             ],
                           ),
                         ),
@@ -141,11 +187,49 @@ class _CallTypeScreenState extends State<CallTypeScreen> with WidgetsBindingObse
               ),
               Center(
                 child: GestureDetector(
-                  onTap: () {
-                    if (!isAdLoading) {
-                      _loadAdInterstial();
-                    }
+                  onTap: () async {
+                    if (adType == "1") {
+                      try {
+                        await startAppSdk.loadInterstitialAd(
+                          prefs: const StartAppAdPreferences(adTag: 'home_screen'),
+                          onAdDisplayed: () {
+                            debugPrint('onAdDisplayed: interstitial');
+                          },
 
+                          onAdNotDisplayed: () {
+                            debugPrint('onAdNotDisplayed: interstitial');
+
+                            // NOTE interstitial ad can be shown only once
+                            this.startAppInterstitialAd?.dispose();
+                            this.startAppInterstitialAd = null;
+                          },
+                          onAdClicked: () {
+                            debugPrint('onAdClicked: interstitial');
+                          },
+                          onAdHidden: () {
+                            debugPrint('onAdHidden: interstitial');
+
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => AcceptPolicyScreen()));
+                            this.startAppInterstitialAd?.dispose();
+                            this.startAppInterstitialAd = null;
+                          },
+                        ).then((interstitialAd) {
+                          this.startAppInterstitialAd = interstitialAd;
+                          interstitialAd?.show();
+                        });
+                      } on StartAppException catch (ex) {
+                        debugPrint("Error loading or showing Interstitial ad: ${ex.message}");
+                      } catch (error, stackTrace) {
+                        debugPrint("Error loading or showing Interstitial ad: $error");
+                      }
+                    }else{
+                      if (!isAdLoading) {
+                        _loadAdInterstial();
+                      }
+                    }
                   },
                   child: Container(
                     alignment: Alignment.center,
@@ -162,20 +246,26 @@ class _CallTypeScreenState extends State<CallTypeScreen> with WidgetsBindingObse
                   ),
                 ),
               ),
-              Spacer(),
-              if (_nativeAdIsLoaded && _nativeAd != null)
-                Container(
 
-                    height:
-                    MediaQuery.of(context).size.height * 0.13 ,
+              Container(
+                  height: MediaQuery.of(context).size.height * 0.18,
+                  width: MediaQuery.of(context).size.width,
+                  child: (adType == "1" && mrecAd != null)
+                      ? StartAppBanner(mrecAd!)
+                      : (_nativeAdIsLoaded && _nativeAd != null)
+                      ? Container(
+                    height: MediaQuery.of(context).size.height * 0.18,
                     width: MediaQuery.of(context).size.width,
-                    child: AdWidget(ad: _nativeAd!)),
+                    child: AdWidget(ad: _nativeAd!),
+                  )
+                      : SizedBox()),
             ],
           ),
         ),
-      )
-    ;
+      ),
+    );
   }
+
   /// Loads a native ad.
   void _loadAd() {
     setState(() {
@@ -183,7 +273,9 @@ class _CallTypeScreenState extends State<CallTypeScreen> with WidgetsBindingObse
     });
 
     _nativeAd = NativeAd(
-        adUnitId: getStorage.read("NativAdId") == null ? "" : getStorage.read("NativAdId"),
+        adUnitId: getStorage.read("NativAdId") == null
+            ? ""
+            : getStorage.read("NativAdId"),
         listener: NativeAdListener(
           onAdLoaded: (ad) {
             // ignore: avoid_print
@@ -234,6 +326,7 @@ class _CallTypeScreenState extends State<CallTypeScreen> with WidgetsBindingObse
       });
     });
   }
+
   void _loadAdInterstial() {
     isAdLoading = true;
     InterstitialAd.load(
@@ -246,14 +339,19 @@ class _CallTypeScreenState extends State<CallTypeScreen> with WidgetsBindingObse
             onAdImpression: (ad) {},
             onAdFailedToShowFullScreenContent: (ad, err) {
               ad.dispose();
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>AcceptPolicyScreen()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AcceptPolicyScreen()));
             },
             onAdDismissedFullScreenContent: (ad) {
-
               setState(() {
                 ad.dispose();
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>AcceptPolicyScreen()));
-                isAdLoading = false;// Dispose only when ad is dismissed
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => AcceptPolicyScreen()));
+                isAdLoading = false; // Dispose only when ad is dismissed
               });
             },
             onAdClicked: (ad) {},
@@ -265,20 +363,21 @@ class _CallTypeScreenState extends State<CallTypeScreen> with WidgetsBindingObse
         },
         onAdFailedToLoad: (LoadAdError error) {
           print('InterstitialAd failed to load: $error');
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>AcceptPolicyScreen()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => AcceptPolicyScreen()));
           isAdLoading = false;
         },
       ),
     );
   }
 
-   _handleTap() {
+  _handleTap() {
     _tapCounter++;
     if (_tapCounter % int.parse(getStorage.read("tapCount").toString()) == 0) {
       _loadAdInterstial();
-
     }
   }
+
   @override
   void dispose() {
     _nativeAd?.dispose();
@@ -286,6 +385,7 @@ class _CallTypeScreenState extends State<CallTypeScreen> with WidgetsBindingObse
 
     super.dispose();
   }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // TODO: implement didChangeAppLifecycleState

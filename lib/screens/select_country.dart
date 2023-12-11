@@ -6,6 +6,10 @@ import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:Santa_prank_call/widget/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:startapp_sdk/startapp.dart';
+
+import 'terms_condition.dart';
+
 
 
 class SelectCountriescreen extends StatefulWidget {
@@ -19,6 +23,15 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
   BannerAd? _bannerAd;
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
+
+  StartAppBannerAd? bannerAd;
+  StartAppBannerAd? mrecAd;
+  var startAppSdk = StartAppSdk();
+  StartAppInterstitialAd? startAppInterstitialAd;
+
+
+
+
   InterstitialAd? _interstitialAd;
   int _tapCounter = 0;
   final String _adUnitId = Platform.isAndroid
@@ -32,10 +45,32 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
   @override
   void initState() {
     super.initState();
+    startAppSdk.setTestAdsEnabled(true);
     appOpenAdManager.loadAd();
     WidgetsBinding.instance.addObserver(this);
     _loadAd();
+    // Load the banner ad when the screen initializes
+    loadBannerAd();
+
+    if (adType == "1") {
+      startAppSdk
+          .loadBannerAd(
+        StartAppBannerType.MREC,
+        prefs: const StartAppAdPreferences(adTag: 'secondary'),
+      )
+          .then((mrecAd) {
+        setState(() {
+          this.mrecAd = mrecAd;
+        });
+      }).onError<StartAppException>((ex, stackTrace) {
+        debugPrint("Error loading Mrec ad: ${ex.message}");
+      }).onError((error, stackTrace) {
+        debugPrint("Error loading Mrec ad: $error");
+      });
+    }
   }
+
+
 
   int _selectedImageIndex = -1; // Default value indicating no selection
   List<String> _text = [
@@ -65,8 +100,33 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
     "assets/download (5).png"
   ];
 
+  Future<void> loadBannerAd() async {
+    try {
+      final bannerAd = await startAppSdk.loadBannerAd(
+        StartAppBannerType.BANNER,
+        prefs: const StartAppAdPreferences(adTag: 'primary'),
+        onAdImpression: () {
+          debugPrint('onAdImpression: banner');
+        },
+        onAdClicked: () {
+          debugPrint('onAdClicked: banner');
+        },
+      );
+
+      setState(() {
+        this.bannerAd = bannerAd;
+      });
+    } on StartAppException catch (ex) {
+      debugPrint("Error loading Banner ad: ${ex.message}");
+    } catch (error) {
+      debugPrint("Error loading Banner ad: $error");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    var buttonStyle = ButtonStyle(minimumSize: MaterialStateProperty.all(Size(224, 36)));
+
     return Scaffold(
       body: Container(
         color: Colors.transparent,
@@ -99,26 +159,62 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
                   Expanded(
                     child: GridView.builder(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 8.0,
-                        mainAxisSpacing: 8.0,
-                        childAspectRatio: 0.68
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 8.0,
+                          childAspectRatio: 0.68
                       ),
                       itemCount: _text.length,
                       itemBuilder: (BuildContext context, int index) {
                         return GestureDetector(
-                          onTap: () {
-                            if (!isAdLoading) {
-                              _loadAdInterstial();
+                          onTap: () async {
+                            if (adType == "1") {
+                              try {
+                                await startAppSdk.loadInterstitialAd(
+                                  prefs: const StartAppAdPreferences(adTag: 'home_screen'),
+                                  onAdDisplayed: () {
+                                    debugPrint('onAdDisplayed: interstitial');
+                                  },
+
+                                  onAdNotDisplayed: () {
+                                    debugPrint('onAdNotDisplayed: interstitial');
+
+                                    // NOTE interstitial ad can be shown only once
+                                    this.startAppInterstitialAd?.dispose();
+                                    this.startAppInterstitialAd = null;
+                                  },
+                                  onAdClicked: () {
+                                    debugPrint('onAdClicked: interstitial');
+                                  },
+                                  onAdHidden: () {
+                                    debugPrint('onAdHidden: interstitial');
+
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (context) => SeletctCategerioesScreen()));
+                                    this.startAppInterstitialAd?.dispose();
+                                    this.startAppInterstitialAd = null;
+                                  },
+                                ).then((interstitialAd) {
+                                  this.startAppInterstitialAd = interstitialAd;
+                                  interstitialAd?.show();
+                                });
+                              } on StartAppException catch (ex) {
+                                debugPrint("Error loading or showing Interstitial ad: ${ex.message}");
+                              } catch (error, stackTrace) {
+                                debugPrint("Error loading or showing Interstitial ad: $error");
+                              }
+                            }else{
+                              if (!isAdLoading) {
+                                _loadAdInterstial();
+                              }
                             }
-                            // _showRewardedInterstitialAd();
                           },
                           child: GridTile(
                             child: Container(
                               padding: EdgeInsets.all(17),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: Colors.white
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: Colors.white
                               ),
                               child: Column(
                                 children: [
@@ -149,12 +245,34 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
                 ],
               ),
             ),
-            if (_bannerAd != null)
-              SizedBox(
-              width: _bannerAd!.size.width.toDouble(),
-              height: _bannerAd!.size.height.toDouble(),
-              child: AdWidget(ad: _bannerAd!),
-            ),
+            // Display the banner if it is not null
+             ( adType == "1") ? StartAppBanner(bannerAd!) : SizedBox(),
+            /*bannerAd != null
+                ? StartAppBanner(bannerAd!)
+                : ElevatedButton(
+              style: buttonStyle,
+              onPressed: () {
+                startAppSdk.loadBannerAd(
+                  StartAppBannerType.BANNER,
+                  prefs: const StartAppAdPreferences(adTag: 'primary'),
+                  onAdImpression: () {
+                    debugPrint('onAdImpression: banner');
+                  },
+                  onAdClicked: () {
+                    debugPrint('onAdClicked: banner');
+                  },
+                ).then((bannerAd) {
+                  setState(() {
+                    this.bannerAd = bannerAd;
+                  });
+                }).onError<StartAppException>((ex, stackTrace) {
+                  debugPrint("Error loading Banner ad: ${ex.message}");
+                }).onError((error, stackTrace) {
+                  debugPrint("Error loading Banner ad: $error");
+                });
+              },
+              child: Text('Show Banner'),
+            ),*/
           ],
         ),
       ),

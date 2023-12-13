@@ -4,6 +4,7 @@ import 'package:Santa_prank_call/main.dart';
 import 'package:Santa_prank_call/screens/selet_categories.dart';
 import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
+import 'package:facebook_audience_network/ad/ad_interstitial.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -24,7 +25,7 @@ class _RatingScreenState extends State<RatingScreen>
   NativeAd? _nativeAd;
   bool _nativeAdIsLoaded = false;
   bool isAdLoading = false;
-
+  bool isInterstitialAdLoaded = false;
   String? _versionString;
   InterstitialAd? _interstitialAd;
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
@@ -45,7 +46,7 @@ class _RatingScreenState extends State<RatingScreen>
     super.initState();
     appOpenAdManager.loadAd();
     startAppSdk.setTestAdsEnabled(true);
-
+    _loadInterstitialAds();
     if (adType == "1") {
       startAppSdk
           .loadBannerAd(
@@ -173,49 +174,50 @@ class _RatingScreenState extends State<RatingScreen>
                   children: [
                     GestureDetector(
                       onTap: () async {
-                        if (adType == "1") {
-                          try {
-                            await startAppSdk.loadInterstitialAd(
-                              prefs: const StartAppAdPreferences(adTag: 'home_screen'),
-                              onAdDisplayed: () {
-                                debugPrint('onAdDisplayed: interstitial');
-                              },
-
-                              onAdNotDisplayed: () {
-                                debugPrint('onAdNotDisplayed: interstitial');
-
-                                // NOTE interstitial ad can be shown only once
-                                this.startAppInterstitialAd?.dispose();
-                                this.startAppInterstitialAd = null;
-                              },
-                              onAdClicked: () {
-                                debugPrint('onAdClicked: interstitial');
-                              },
-                              onAdHidden: () {
-                                debugPrint('onAdHidden: interstitial');
-
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) =>
-                                        SeletctCategerioesScreen()));
-                                this.startAppInterstitialAd?.dispose();
-                                this.startAppInterstitialAd = null;
-                              },
-                            ).then((interstitialAd) {
-                              this.startAppInterstitialAd = interstitialAd;
-                              interstitialAd?.show();
-                            });
-                          } on StartAppException catch (ex) {
-                            debugPrint("Error loading or showing Interstitial ad: ${ex
-                                .message}");
-                          } catch (error, stackTrace) {
-                            debugPrint(
-                                "Error loading or showing Interstitial ad: $error");
-                          }
-                        } else {
-                          if (!isAdLoading) {
-                            _loadAdInterstial();
-                          }
-                        }
+                        FacebookInterstitialAd.showInterstitialAd();
+                        // if (adType == "1") {
+                        //   try {
+                        //     await startAppSdk.loadInterstitialAd(
+                        //       prefs: const StartAppAdPreferences(adTag: 'home_screen'),
+                        //       onAdDisplayed: () {
+                        //         debugPrint('onAdDisplayed: interstitial');
+                        //       },
+                        //
+                        //       onAdNotDisplayed: () {
+                        //         debugPrint('onAdNotDisplayed: interstitial');
+                        //
+                        //         // NOTE interstitial ad can be shown only once
+                        //         this.startAppInterstitialAd?.dispose();
+                        //         this.startAppInterstitialAd = null;
+                        //       },
+                        //       onAdClicked: () {
+                        //         debugPrint('onAdClicked: interstitial');
+                        //       },
+                        //       onAdHidden: () {
+                        //         debugPrint('onAdHidden: interstitial');
+                        //
+                        //         Navigator.push(context,
+                        //             MaterialPageRoute(builder: (context) =>
+                        //                 SeletctCategerioesScreen()));
+                        //         this.startAppInterstitialAd?.dispose();
+                        //         this.startAppInterstitialAd = null;
+                        //       },
+                        //     ).then((interstitialAd) {
+                        //       this.startAppInterstitialAd = interstitialAd;
+                        //       interstitialAd?.show();
+                        //     });
+                        //   } on StartAppException catch (ex) {
+                        //     debugPrint("Error loading or showing Interstitial ad: ${ex
+                        //         .message}");
+                        //   } catch (error, stackTrace) {
+                        //     debugPrint(
+                        //         "Error loading or showing Interstitial ad: $error");
+                        //   }
+                        // } else {
+                        //   if (!isAdLoading) {
+                        //     _loadAdInterstial();
+                        //   }
+                        // }
                       },
                       child: Container(
                         alignment: Alignment.center,
@@ -236,49 +238,50 @@ class _RatingScreenState extends State<RatingScreen>
                     ),
                     GestureDetector(
                       onTap: () async {
-                        if (adType == "1") {
-                          try {
-                            await startAppSdk.loadInterstitialAd(
-                              prefs: const StartAppAdPreferences(adTag: 'home_screen'),
-                              onAdDisplayed: () {
-                                debugPrint('onAdDisplayed: interstitial');
-                              },
-
-                              onAdNotDisplayed: () {
-                                debugPrint('onAdNotDisplayed: interstitial');
-
-                                // NOTE interstitial ad can be shown only once
-                                this.startAppInterstitialAd?.dispose();
-                                this.startAppInterstitialAd = null;
-                              },
-                              onAdClicked: () {
-                                debugPrint('onAdClicked: interstitial');
-                              },
-                              onAdHidden: () {
-                                debugPrint('onAdHidden: interstitial');
-
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) =>
-                                        SeletctCategerioesScreen()));
-                                this.startAppInterstitialAd?.dispose();
-                                this.startAppInterstitialAd = null;
-                              },
-                            ).then((interstitialAd) {
-                              this.startAppInterstitialAd = interstitialAd;
-                              interstitialAd?.show();
-                            });
-                          } on StartAppException catch (ex) {
-                            debugPrint("Error loading or showing Interstitial ad: ${ex
-                                .message}");
-                          } catch (error, stackTrace) {
-                            debugPrint(
-                                "Error loading or showing Interstitial ad: $error");
-                          }
-                        } else {
-                          if (!isAdLoading) {
-                            _loadAdInterstial();
-                          }
-                        }
+                        FacebookInterstitialAd.showInterstitialAd();
+                        // if (adType == "1") {
+                        //   try {
+                        //     await startAppSdk.loadInterstitialAd(
+                        //       prefs: const StartAppAdPreferences(adTag: 'home_screen'),
+                        //       onAdDisplayed: () {
+                        //         debugPrint('onAdDisplayed: interstitial');
+                        //       },
+                        //
+                        //       onAdNotDisplayed: () {
+                        //         debugPrint('onAdNotDisplayed: interstitial');
+                        //
+                        //         // NOTE interstitial ad can be shown only once
+                        //         this.startAppInterstitialAd?.dispose();
+                        //         this.startAppInterstitialAd = null;
+                        //       },
+                        //       onAdClicked: () {
+                        //         debugPrint('onAdClicked: interstitial');
+                        //       },
+                        //       onAdHidden: () {
+                        //         debugPrint('onAdHidden: interstitial');
+                        //
+                        //         Navigator.push(context,
+                        //             MaterialPageRoute(builder: (context) =>
+                        //                 SeletctCategerioesScreen()));
+                        //         this.startAppInterstitialAd?.dispose();
+                        //         this.startAppInterstitialAd = null;
+                        //       },
+                        //     ).then((interstitialAd) {
+                        //       this.startAppInterstitialAd = interstitialAd;
+                        //       interstitialAd?.show();
+                        //     });
+                        //   } on StartAppException catch (ex) {
+                        //     debugPrint("Error loading or showing Interstitial ad: ${ex
+                        //         .message}");
+                        //   } catch (error, stackTrace) {
+                        //     debugPrint(
+                        //         "Error loading or showing Interstitial ad: $error");
+                        //   }
+                        // } else {
+                        //   if (!isAdLoading) {
+                        //     _loadAdInterstial();
+                        //   }
+                        // }
                       },
                       child: Container(
                         alignment: Alignment.center,
@@ -436,7 +439,29 @@ class _RatingScreenState extends State<RatingScreen>
       ),
     );
   }
+  void _loadInterstitialAds() {
+    FacebookInterstitialAd.loadInterstitialAd(
+      // placementId: "YOUR_PLACEMENT_ID",
+      placementId: "IMG_16_9_APP_INSTALL#1077658573437041_1077659113436987",
+      listener: (result, value) {
+        print(">> FAN > Interstitial Ad: $result --> $value");
+        if (result == InterstitialAdResult.LOADED)
+          isInterstitialAdLoaded = true;
 
+        /// Once an Interstitial Ad has been dismissed and becomes invalidated,
+        /// load a fresh Ad by calling this function.
+        if (result == InterstitialAdResult.DISMISSED ) {
+          isInterstitialAdLoaded = false;
+         Navigator.pushAndRemoveUntil(
+             context,
+             MaterialPageRoute(
+                 builder: (context) => SeletctCategerioesScreen()),
+                 (route) => false);
+          _loadInterstitialAds();
+        }
+      },
+    );
+  }
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // TODO: implement didChangeAppLifecycleState

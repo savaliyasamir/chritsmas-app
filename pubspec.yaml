@@ -38,6 +38,7 @@ dependencies:
   flutter_local_notifications: ^15.1.1
   vibration:
   google_mobile_ads: ^3.1.0
+  facebook_audience_network: ^1.0.1
   flutter_rating_bar:
   http:
   url_launcher:

@@ -5,6 +5,7 @@ import 'package:Santa_prank_call/screens/selet_categories.dart';
 import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:facebook_audience_network/ad/ad_interstitial.dart';
+import 'package:facebook_audience_network/ad/ad_native.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -45,6 +46,7 @@ class _RatingScreenState extends State<RatingScreen>
   void initState() {
     super.initState();
     appOpenAdManager.loadAd();
+    _showNativeAd();
     startAppSdk.setTestAdsEnabled(true);
     _loadInterstitialAds();
     if (adType == "1") {
@@ -307,21 +309,40 @@ class _RatingScreenState extends State<RatingScreen>
                 Container(
                     height: MediaQuery.of(context).size.height * 0.4,
                     width: MediaQuery.of(context).size.width,
-                    child: (adType == "1" && mrecAd != null)
-                        ? StartAppBanner(mrecAd!)
-                        : (_nativeAdIsLoaded && _nativeAd != null)
-                        ? Container(
-                      height: MediaQuery.of(context).size.height * 0.4,
-                      width: MediaQuery.of(context).size.width,
-                      child: AdWidget(ad: _nativeAd!),
-                    )
-                        : SizedBox()),          ],
+                    child:   _currentNativeAd,),          ],
             ),
           ),
         ),
       ),);
   }
-
+  Widget _currentNativeAd = SizedBox(
+    width: 0.0,
+    height: 0.0,
+  );
+  _showNativeAd() {
+    setState(() {
+      _currentNativeAd = _nativeAds();
+    });
+  }
+  Widget _nativeAds() {
+    return FacebookNativeAd(
+      placementId: "IMG_16_9_APP_INSTALL#2312433698835503_2964952163583650",
+      adType: NativeAdType.NATIVE_AD_VERTICAL,
+      width: double.infinity,
+      height: 300,
+      backgroundColor: Colors.blue,
+      titleColor: Colors.white,
+      descriptionColor: Colors.white,
+      buttonColor: Colors.deepPurple,
+      buttonTitleColor: Colors.white,
+      buttonBorderColor: Colors.white,
+      listener: (result, value) {
+        print("Native Ad: $result --> $value");
+      },
+      keepExpandedWhileLoading: true,
+      expandAnimationDuraion: 1000,
+    );
+  }
   /// Loads a native ad.
   void _loadAd() {
     setState(() {
@@ -474,6 +495,34 @@ class _RatingScreenState extends State<RatingScreen>
       appOpenAdManager.showAdIfAvailable();
       isPaused = false;
     }
+  }
+
+  _showNativeBannerAd() {
+    setState(() {
+      _currentAd = _nativeBannerAd();
+    });
+  }
+  Widget _currentAd = SizedBox(
+    width: 0.0,
+    height: 0.0,
+  );
+  Widget _nativeBannerAd() {
+    return FacebookNativeAd(
+      // placementId: "YOUR_PLACEMENT_ID",
+      placementId: "IMG_16_9_APP_INSTALL#2312433698835503_2964953543583512",
+      adType: NativeAdType.NATIVE_BANNER_AD,
+      bannerAdSize: NativeBannerAdSize.HEIGHT_100,
+      width: double.infinity,
+      backgroundColor: Colors.blue,
+      titleColor: Colors.white,
+      descriptionColor: Colors.white,
+      buttonColor: Colors.deepPurple,
+      buttonTitleColor: Colors.white,
+      buttonBorderColor: Colors.white,
+      listener: (result, value) {
+        print("Native Banner Ad: $result --> $value");
+      },
+    );
   }
 
   @override

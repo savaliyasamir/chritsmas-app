@@ -6,6 +6,7 @@ import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:Santa_prank_call/widget/constant.dart';
 import 'package:facebook_audience_network/ad/ad_interstitial.dart';
+import 'package:facebook_audience_network/facebook_audience_network.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:startapp_sdk/startapp.dart';
@@ -43,6 +44,8 @@ class _CallTypeScreenState extends State<CallTypeScreen>
     appOpenAdManager.loadAd();
     _loadInterstitialAds();
     startAppSdk.setTestAdsEnabled(true);
+    FacebookAudienceNetwork.init();
+    _showFacebookNativeAd();
 
     WidgetsBinding.instance.addObserver(this);
     _loadAd();
@@ -69,202 +72,204 @@ class _CallTypeScreenState extends State<CallTypeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: Container(
-          height: MediaQuery.of(context).size.height,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-              Container(
-                padding: EdgeInsets.only(right: 15, left: 15),
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.28,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      "Hi, samantha!",
-                      style: TextStyle(
-                          color: textcolor,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      "Thanks for choosing our app,Get\nready to experience seamless\ncommunication and stay connected\nwith those who matter most!",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.all(15),
-                height: MediaQuery.of(context).size.height * 0.37,
-                width: MediaQuery.of(context).size.width,
-                color: PinkColor,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Connect Your Way",
-                      style: TextStyle(
-                          color: textcolor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    Row(
-                      children: [
-                        Container(
-                          width: 150,
-                          height: 200,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Container(
-                                height: 170,
-                                width: 150,
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                    image: DecorationImage(
-                                      image: AssetImage("assets/voice_img.png"),
-                                    )),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                "Audio Call",
-                                style: TextStyle(
-                                    fontSize: 17,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ],
-                          ),
-                        ),
-                        Spacer(),
-                        Container(
-                          width: 150,
-                          height: 200,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Container(
-                                height: 170,
-                                width: 150,
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                          "assets/Voice_call_img.png"),
-                                    )),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                "Video Call",
-                                style: TextStyle(
-                                    fontSize: 17,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ],
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 50,
-              ),
-              Center(
-                child: GestureDetector(
-                  onTap: () async {
-                    FacebookInterstitialAd.showInterstitialAd();
-                    // if (adType == "1") {
-                    //   try {
-                    //     await startAppSdk.loadInterstitialAd(
-                    //       prefs: const StartAppAdPreferences(adTag: 'home_screen'),
-                    //       onAdDisplayed: () {
-                    //         debugPrint('onAdDisplayed: interstitial');
-                    //       },
-                    //
-                    //       onAdNotDisplayed: () {
-                    //         debugPrint('onAdNotDisplayed: interstitial');
-                    //
-                    //         // NOTE interstitial ad can be shown only once
-                    //         this.startAppInterstitialAd?.dispose();
-                    //         this.startAppInterstitialAd = null;
-                    //       },
-                    //       onAdClicked: () {
-                    //         debugPrint('onAdClicked: interstitial');
-                    //       },
-                    //       onAdHidden: () {
-                    //         debugPrint('onAdHidden: interstitial');
-                    //
-                    //         Navigator.push(
-                    //             context,
-                    //             MaterialPageRoute(
-                    //                 builder: (context) => AcceptPolicyScreen()));
-                    //         this.startAppInterstitialAd?.dispose();
-                    //         this.startAppInterstitialAd = null;
-                    //       },
-                    //     ).then((interstitialAd) {
-                    //       this.startAppInterstitialAd = interstitialAd;
-                    //       interstitialAd?.show();
-                    //     });
-                    //   } on StartAppException catch (ex) {
-                    //     debugPrint("Error loading or showing Interstitial ad: ${ex.message}");
-                    //   } catch (error, stackTrace) {
-                    //     debugPrint("Error loading or showing Interstitial ad: $error");
-                    //   }
-                    // }else{
-                    //   if (!isAdLoading) {
-                    //     _loadAdInterstial();
-                    //   }
-                    // }
-                  },
-                  child: Container(
-                    alignment: Alignment.center,
-                    height: 40,
-                    width: 180,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.red),
-                    child: Text("Let's go",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+            Container(
+              padding: EdgeInsets.only(right: 15, left: 15),
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height * 0.28,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    "Hi, samantha!",
+                    style: TextStyle(
+                        color: textcolor,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold),
                   ),
+                  Text(
+                    "Thanks for choosing our app,Get\nready to experience seamless\ncommunication and stay connected\nwith those who matter most!",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.all(15),
+              height: MediaQuery.of(context).size.height * 0.37,
+              width: MediaQuery.of(context).size.width,
+              color: PinkColor,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Connect Your Way",
+                    style: TextStyle(
+                        color: textcolor,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        width: 150,
+                        height: 200,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Container(
+                              height: 170,
+                              width: 150,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  image: DecorationImage(
+                                    image: AssetImage("assets/voice_img.png"),
+                                  )),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              "Audio Call",
+                              style: TextStyle(
+                                  fontSize: 17,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        ),
+                      ),
+                      Spacer(),
+                      Container(
+                        width: 150,
+                        height: 200,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Container(
+                              height: 170,
+                              width: 150,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                        "assets/Voice_call_img.png"),
+                                  )),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              "Video Call",
+                              style: TextStyle(
+                                  fontSize: 17,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 50,
+            ),
+            Center(
+              child: GestureDetector(
+                onTap: () async {
+                  FacebookInterstitialAd.showInterstitialAd();
+                  // if (adType == "1") {
+                  //   try {
+                  //     await startAppSdk.loadInterstitialAd(
+                  //       prefs: const StartAppAdPreferences(adTag: 'home_screen'),
+                  //       onAdDisplayed: () {
+                  //         debugPrint('onAdDisplayed: interstitial');
+                  //       },
+                  //
+                  //       onAdNotDisplayed: () {
+                  //         debugPrint('onAdNotDisplayed: interstitial');
+                  //
+                  //         // NOTE interstitial ad can be shown only once
+                  //         this.startAppInterstitialAd?.dispose();
+                  //         this.startAppInterstitialAd = null;
+                  //       },
+                  //       onAdClicked: () {
+                  //         debugPrint('onAdClicked: interstitial');
+                  //       },
+                  //       onAdHidden: () {
+                  //         debugPrint('onAdHidden: interstitial');
+                  //
+                  //         Navigator.push(
+                  //             context,
+                  //             MaterialPageRoute(
+                  //                 builder: (context) => AcceptPolicyScreen()));
+                  //         this.startAppInterstitialAd?.dispose();
+                  //         this.startAppInterstitialAd = null;
+                  //       },
+                  //     ).then((interstitialAd) {
+                  //       this.startAppInterstitialAd = interstitialAd;
+                  //       interstitialAd?.show();
+                  //     });
+                  //   } on StartAppException catch (ex) {
+                  //     debugPrint("Error loading or showing Interstitial ad: ${ex.message}");
+                  //   } catch (error, stackTrace) {
+                  //     debugPrint("Error loading or showing Interstitial ad: $error");
+                  //   }
+                  // }else{
+                  //   if (!isAdLoading) {
+                  //     _loadAdInterstial();
+                  //   }
+                  // }
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  height: 40,
+                  width: 180,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.red),
+                  child: Text("Let's go",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold)),
                 ),
               ),
+            ),
 
-              Container(
+            /// show Facebook native ad
+            Container(
+                height: MediaQuery.of(context).size.height * 0.3,
+                width: MediaQuery.of(context).size.width,
+                child: currentFacebookNativeAd),
+            /*Container(
+                height: MediaQuery.of(context).size.height * 0.18,
+                width: MediaQuery.of(context).size.width,
+                child: (adType == "1" && mrecAd != null)
+                    ? StartAppBanner(mrecAd!)
+                    : (_nativeAdIsLoaded && _nativeAd != null)
+                    ? Container(
                   height: MediaQuery.of(context).size.height * 0.18,
                   width: MediaQuery.of(context).size.width,
-                  child: (adType == "1" && mrecAd != null)
-                      ? StartAppBanner(mrecAd!)
-                      : (_nativeAdIsLoaded && _nativeAd != null)
-                      ? Container(
-                    height: MediaQuery.of(context).size.height * 0.18,
-                    width: MediaQuery.of(context).size.width,
-                    child: AdWidget(ad: _nativeAd!),
-                  )
-                      : SizedBox()),
-            ],
-          ),
+                  child: AdWidget(ad: _nativeAd!),
+                )
+                    : SizedBox()),*/
+          ],
         ),
       ),
     );
@@ -372,6 +377,39 @@ class _CallTypeScreenState extends State<CallTypeScreen>
           isAdLoading = false;
         },
       ),
+    );
+  }
+
+  /// facebook native ad
+
+  Widget currentFacebookNativeAd = SizedBox(
+    width: 0.0,
+    height: 0.0,
+  );
+
+  _showFacebookNativeAd() {
+    setState(() {
+      currentFacebookNativeAd = facebookNativeAd();
+    });
+  }
+
+  Widget facebookNativeAd() {
+    return FacebookNativeAd(
+      placementId: facebookNativeAdPlacementID,
+      adType: NativeAdType.NATIVE_AD_VERTICAL,
+      width: double.infinity,
+      height: 300,
+      backgroundColor: Colors.blue,
+      titleColor: Colors.white,
+      descriptionColor: Colors.white,
+      buttonColor: Colors.deepPurple,
+      buttonTitleColor: Colors.white,
+      buttonBorderColor: Colors.white,
+      listener: (result, value) {
+        print("Native Ad: $result --> $value");
+      },
+      keepExpandedWhileLoading: true,
+      expandAnimationDuraion: 1000,
     );
   }
 

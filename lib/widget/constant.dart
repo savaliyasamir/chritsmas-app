@@ -24,3 +24,4 @@ showSnackBar({required String title, required String msg}){
       backgroundColor: Colors.white);
 }
  String InterstialAdID = getStorage.read("InterStialAdId") ?? "";
+String facebookNativeAdPlacementID =  "IMG_16_9_APP_INSTALL#2312433698835503_2964952163583650";

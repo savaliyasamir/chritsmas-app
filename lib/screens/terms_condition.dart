@@ -10,7 +10,6 @@ import 'package:startapp_sdk/startapp.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:facebook_audience_network/facebook_audience_network.dart';
 
-
 String? adType;
 
 class TermsConditionScreen extends StatefulWidget {
@@ -54,12 +53,13 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
   @override
   void initState() {
     super.initState();
+    FacebookAudienceNetwork.init();
     startAppSdk.setTestAdsEnabled(true);
     appOpenAdManager.loadAd();
+    _showFacebookNativeAd();
     _loadInterstitialAds();
     _loadAd();
     _loadVersionString();
-
 
     if (adType == "1") {
       startAppSdk
@@ -96,7 +96,7 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
               decoration: BoxDecoration(
                   color: PinkColor,
                   borderRadius:
-                  BorderRadius.only(bottomLeft: Radius.circular(100))),
+                      BorderRadius.only(bottomLeft: Radius.circular(100))),
               height: MediaQuery.of(context).size.height * 0.28,
               width: MediaQuery.of(context).size.width,
               child: Column(
@@ -148,9 +148,9 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
                         border: Border.all(color: Color(0xff851D1B))),
                     child: value == true
                         ? Icon(
-                      Icons.check_rounded,
-                      size: 18,
-                    )
+                            Icons.check_rounded,
+                            size: 18,
+                          )
                         : SizedBox(),
                   ),
                 ),
@@ -192,9 +192,9 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
                         border: Border.all(color: Color(0xff851D1B))),
                     child: value1 == true
                         ? Icon(
-                      Icons.check_rounded,
-                      size: 18,
-                    )
+                            Icons.check_rounded,
+                            size: 18,
+                          )
                         : SizedBox(),
                   ),
                 ),
@@ -315,8 +315,13 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
               ),
             ),
 
+            /// show Facebook native ad
+            Container(
+                height: MediaQuery.of(context).size.height * 0.3,
+                width: MediaQuery.of(context).size.width,
+                child: currentFacebookNativeAd),
 
-              Container(
+            /*Container(
                   height: MediaQuery.of(context).size.height * 0.4,
                   width: MediaQuery.of(context).size.width,
                   child: (adType == "1" && mrecAd != null)
@@ -327,7 +332,7 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
                     width: MediaQuery.of(context).size.width,
                     child: AdWidget(ad: _nativeAd!),
                   )
-                      : SizedBox()),
+                      : SizedBox()),*/
           ],
         ),
       ),
@@ -451,7 +456,6 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
     }
   }
 
-
   void _loadInterstitialAds() {
     FacebookInterstitialAd.loadInterstitialAd(
       // placementId: "YOUR_PLACEMENT_ID",
@@ -463,7 +467,7 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
 
         /// Once an Interstitial Ad has been dismissed and becomes invalidated,
         /// load a fresh Ad by calling this function.
-        if (result == InterstitialAdResult.DISMISSED ) {
+        if (result == InterstitialAdResult.DISMISSED) {
           isInterstitialAdLoaded = false;
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => CallTypeScreen()));
@@ -472,6 +476,40 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
       },
     );
   }
+
+  /// facebook native ad
+
+  Widget currentFacebookNativeAd = SizedBox(
+    width: 0.0,
+    height: 0.0,
+  );
+
+  _showFacebookNativeAd() {
+    setState(() {
+      currentFacebookNativeAd = facebookNativeAd();
+    });
+  }
+
+  Widget facebookNativeAd() {
+    return FacebookNativeAd(
+      placementId: facebookNativeAdPlacementID,
+      adType: NativeAdType.NATIVE_AD_VERTICAL,
+      width: double.infinity,
+      height: 300,
+      backgroundColor: Colors.blue,
+      titleColor: Colors.white,
+      descriptionColor: Colors.white,
+      buttonColor: Colors.deepPurple,
+      buttonTitleColor: Colors.white,
+      buttonBorderColor: Colors.white,
+      listener: (result, value) {
+        print("Native Ad: $result --> $value");
+      },
+      keepExpandedWhileLoading: true,
+      expandAnimationDuraion: 1000,
+    );
+  }
+
   @override
   void dispose() {
     _nativeAd?.dispose();

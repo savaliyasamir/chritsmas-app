@@ -6,6 +6,7 @@ import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:Santa_prank_call/widget/constant.dart';
 import 'package:facebook_audience_network/ad/ad_interstitial.dart';
+import 'package:facebook_audience_network/facebook_audience_network.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:startapp_sdk/startapp.dart';
@@ -47,6 +48,10 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
     WidgetsBinding.instance.addObserver(this);
     _loadAd();
     _loadVersionString();
+    FacebookAudienceNetwork.init();
+    _showFacebookNativeAd();
+
+
     if (adType == "1") {
       startAppSdk
           .loadBannerAd(
@@ -274,7 +279,12 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
             SizedBox(
               height: 10,
             ),
-            if (_nativeAdIsLoaded && _nativeAd != null)
+            /// show Facebook native ad
+            Container(
+                height: MediaQuery.of(context).size.height * 0.3,
+                width: MediaQuery.of(context).size.width,
+                child: currentFacebookNativeAd),
+            /*if (_nativeAdIsLoaded && _nativeAd != null)
               Container(
                   height: MediaQuery.of(context).size.height * 0.4,
                   width: MediaQuery.of(context).size.width,
@@ -286,7 +296,7 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
                     width: MediaQuery.of(context).size.width,
                     child: AdWidget(ad: _nativeAd!),
                   )
-                      : SizedBox()),
+                      : SizedBox()),*/
           ],
         ),
       ),
@@ -361,6 +371,48 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
     }
   }
 
+
+  /// facebook native ad
+
+  Widget currentFacebookNativeAd = SizedBox(
+    width: 0.0,
+    height: 0.0,
+  );
+
+  _showFacebookNativeAd() {
+    setState(() {
+      currentFacebookNativeAd = facebookNativeAd();
+    });
+  }
+
+  Widget facebookNativeAd() {
+    return FacebookNativeAd(
+      placementId: facebookNativeAdPlacementID,
+      adType: NativeAdType.NATIVE_AD_VERTICAL,
+      width: double.infinity,
+      height: 300,
+      backgroundColor: Colors.blue,
+      titleColor: Colors.white,
+      descriptionColor: Colors.white,
+      buttonColor: Colors.deepPurple,
+      buttonTitleColor: Colors.white,
+      buttonBorderColor: Colors.white,
+      listener: (result, value) {
+        print("Native Ad: $result --> $value");
+      },
+      keepExpandedWhileLoading: true,
+      expandAnimationDuraion: 1000,
+    );
+  }
+
+  @override
+  void dispose() {
+    _nativeAd?.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+
+    super.dispose();
+  }
+
   void _loadAdInterstial() {
     isAdLoading = true;
     InterstitialAd.load(
@@ -407,13 +459,7 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
     );
   }
 
-  @override
-  void dispose() {
-    _nativeAd?.dispose();
-    WidgetsBinding.instance.removeObserver(this);
 
-    super.dispose();
-  }
   void _loadInterstitialAds() {
     FacebookInterstitialAd.loadInterstitialAd(
       // placementId: "YOUR_PLACEMENT_ID",

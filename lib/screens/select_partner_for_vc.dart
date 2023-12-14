@@ -7,6 +7,7 @@ import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/ads.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:Santa_prank_call/widget/constant.dart';
+import 'package:facebook_audience_network/ad/ad_banner.dart';
 import 'package:facebook_audience_network/ad/ad_interstitial.dart';
 
 import 'package:flutter/material.dart';
@@ -62,6 +63,7 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
   @override
   void initState() {
     // TODO: implement initState
+    loadBannerAd();
     initBannerAd();
     appOpenAdManager.loadAd();
     WidgetsBinding.instance.addObserver(this);
@@ -313,21 +315,45 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
               ),
             )
           ])),
-      bottomNavigationBar:(adType == "1" && mrecAd != null)
-          ? SizedBox(
-          height: bannerAd.size.height.toDouble(),
-          width: bannerAd.size.width.toDouble(),
-          child:StartAppBanner(mrecAd!) )
-          :   isAdLoaded
-          ? SizedBox(
-              height: bannerAd.size.height.toDouble(),
-              width: bannerAd.size.width.toDouble(),
-              child: AdWidget(
-                ad: bannerAd,
-              ),
-            )
-          : SizedBox(),
+        /// facebook Banner ad
+
+      bottomNavigationBar: Container(
+        alignment: Alignment.center,
+        height: 60,
+        color: Colors.black12,
+        child: _facebookBannerAd,
+      ),
+      // bottomNavigationBar:(adType == "1" && mrecAd != null)
+      //     ? SizedBox(
+      //     height: bannerAd.size.height.toDouble(),
+      //     width: bannerAd.size.width.toDouble(),
+      //     child: StartAppBanner(mrecAd!) )
+      //     :   isAdLoaded
+      //     ? SizedBox(
+      //         height: bannerAd.size.height.toDouble(),
+      //         width: bannerAd.size.width.toDouble(),
+      //         child: AdWidget(
+      //           ad: bannerAd,
+      //         ),
+      //       )
+      //     : SizedBox(),
     );
+  }
+
+  /// facebook Banner ad
+
+  Widget _facebookBannerAd = SizedBox(width: 0, height: 0);
+
+  void loadBannerAd() {
+    setState(() {
+      _facebookBannerAd = FacebookBannerAd(
+        placementId: "IMG_16_9_APP_INSTALL#1077658573437041_1077659073436991",
+        bannerSize: BannerSize.STANDARD,
+        listener: (result, value) {
+          print("$result == $value");
+        },
+      );
+    });
   }
 
   void _loadAdInterstial(int index) {

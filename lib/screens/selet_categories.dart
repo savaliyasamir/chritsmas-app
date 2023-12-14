@@ -5,6 +5,7 @@ import 'package:Santa_prank_call/screens/SorryScreen.dart';
 import 'package:Santa_prank_call/screens/select_partner_for_vc.dart';
 import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
+import 'package:facebook_audience_network/ad/ad_banner.dart';
 import 'package:facebook_audience_network/ad/ad_interstitial.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -48,10 +49,14 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
 
+
+
+
   @override
   void initState() {
     super.initState();
     // _createRewardedInterstitialAd();
+    loadBannerAd();
     appOpenAdManager.loadAd();
     _loadInterstitialAds();
     startAppSdk.setTestAdsEnabled(true);
@@ -199,15 +204,16 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
           alignment: Alignment.center,
           height: 60,
           color: Colors.black12,
-          child:(adType == "1" && mrecAd != null)
-              ? StartAppBanner(mrecAd!)
-              :  _bannerAd != null
-              ? SizedBox(
-                  width: _bannerAd!.size.width.toDouble(),
-                  height: _bannerAd!.size.height.toDouble(),
-                  child: AdWidget(ad: _bannerAd!),
-                )
-              : SizedBox(),
+          child: _facebookBannerAd,
+          // child:(adType == "1" && mrecAd != null)
+          //     ? StartAppBanner(mrecAd!)
+          //     :  _bannerAd != null
+          //     ? SizedBox(
+          //         width: _bannerAd!.size.width.toDouble(),
+          //         height: _bannerAd!.size.height.toDouble(),
+          //         child: AdWidget(ad: _bannerAd!),
+          //       )
+          //     : SizedBox(),
         ),
       ),
     );
@@ -286,6 +292,22 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
         },
       ),
     );
+  }
+
+  /// facebook Banner ad
+
+  Widget _facebookBannerAd = SizedBox(width: 0, height: 0);
+
+  void loadBannerAd() {
+    setState(() {
+      _facebookBannerAd = FacebookBannerAd(
+        placementId: "IMG_16_9_APP_INSTALL#1077658573437041_1077659073436991",
+        bannerSize: BannerSize.STANDARD,
+        listener: (result, value) {
+          print("$result == $value");
+        },
+      );
+    });
   }
 
   @override

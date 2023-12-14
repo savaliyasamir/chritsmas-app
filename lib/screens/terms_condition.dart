@@ -314,7 +314,9 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
                 ),
               ),
             ),
-
+              SizedBox(
+                height: 30,
+              ),
             /// show Facebook native ad
             Container(
                 height: MediaQuery.of(context).size.height * 0.3,

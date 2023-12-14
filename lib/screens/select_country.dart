@@ -11,8 +11,6 @@ import 'package:startapp_sdk/startapp.dart';
 
 import 'terms_condition.dart';
 
-
-
 class SelectCountriescreen extends StatefulWidget {
   const SelectCountriescreen({Key? key}) : super(key: key);
 
@@ -20,7 +18,8 @@ class SelectCountriescreen extends StatefulWidget {
   State<SelectCountriescreen> createState() => _SelectCountriescreenState();
 }
 
-class _SelectCountriescreenState extends State<SelectCountriescreen> with WidgetsBindingObserver{
+class _SelectCountriescreenState extends State<SelectCountriescreen>
+    with WidgetsBindingObserver {
   BannerAd? _bannerAd;
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
@@ -28,10 +27,8 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
   StartAppBannerAd? bannerAd;
   StartAppBannerAd? mrecAd;
   var startAppSdk = StartAppSdk();
+  bool isButtonTapped = false;
   StartAppInterstitialAd? startAppInterstitialAd;
-
-
-
 
   InterstitialAd? _interstitialAd;
   int _tapCounter = 0;
@@ -46,15 +43,19 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
   @override
   void initState() {
     super.initState();
-    _loadInterstitialAds();
+    if(adType == "2"){
+      _loadInterstitialAds();
+    }
     startAppSdk.setTestAdsEnabled(true);
     appOpenAdManager.loadAd();
     WidgetsBinding.instance.addObserver(this);
     _loadAd();
     // Load the banner ad when the screen initializes
-    loadBannerAd();
+    if(adUnitId == "3"){
+      loadBannerAd();
+    }
 
-    if (adType == "1") {
+    if (adType == "3") {
       startAppSdk
           .loadBannerAd(
         StartAppBannerType.MREC,
@@ -71,8 +72,6 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
       });
     }
   }
-
-
 
   int _selectedImageIndex = -1; // Default value indicating no selection
   List<String> _text = [
@@ -127,7 +126,8 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
 
   @override
   Widget build(BuildContext context) {
-    var buttonStyle = ButtonStyle(minimumSize: MaterialStateProperty.all(Size(224, 36)));
+    var buttonStyle =
+        ButtonStyle(minimumSize: MaterialStateProperty.all(Size(224, 36)));
 
     return Scaffold(
       body: Container(
@@ -142,7 +142,8 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
               height: MediaQuery.of(context).size.height * 0.13,
               decoration: BoxDecoration(
                 color: PinkColor,
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(100)),
+                borderRadius:
+                    BorderRadius.only(bottomLeft: Radius.circular(100)),
               ),
               child: Text(
                 "Select the Country",
@@ -164,64 +165,78 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
                           crossAxisCount: 3,
                           crossAxisSpacing: 8.0,
                           mainAxisSpacing: 8.0,
-                          childAspectRatio: 0.68
-                      ),
+                          childAspectRatio: 0.68),
                       itemCount: _text.length,
                       itemBuilder: (BuildContext context, int index) {
                         return GestureDetector(
                           onTap: () async {
-                            FacebookInterstitialAd.showInterstitialAd();
-                            // if (adType == "1") {
-                            //   try {
-                            //     await startAppSdk.loadInterstitialAd(
-                            //       prefs: const StartAppAdPreferences(adTag: 'home_screen'),
-                            //       onAdDisplayed: () {
-                            //         debugPrint('onAdDisplayed: interstitial');
-                            //       },
-                            //
-                            //       onAdNotDisplayed: () {
-                            //         debugPrint('onAdNotDisplayed: interstitial');
-                            //
-                            //         // NOTE interstitial ad can be shown only once
-                            //         this.startAppInterstitialAd?.dispose();
-                            //         this.startAppInterstitialAd = null;
-                            //       },
-                            //       onAdClicked: () {
-                            //         debugPrint('onAdClicked: interstitial');
-                            //       },
-                            //       onAdHidden: () {
-                            //         debugPrint('onAdHidden: interstitial');
-                            //
-                            //         Navigator.push(context,
-                            //             MaterialPageRoute(builder: (context) => SeletctCategerioesScreen()));
-                            //         this.startAppInterstitialAd?.dispose();
-                            //         this.startAppInterstitialAd = null;
-                            //       },
-                            //     ).then((interstitialAd) {
-                            //       this.startAppInterstitialAd = interstitialAd;
-                            //       interstitialAd?.show();
-                            //     });
-                            //   } on StartAppException catch (ex) {
-                            //     debugPrint("Error loading or showing Interstitial ad: ${ex.message}");
-                            //   } catch (error, stackTrace) {
-                            //     debugPrint("Error loading or showing Interstitial ad: $error");
-                            //   }
-                            // }else{
-                            //   if (!isAdLoading) {
-                            //     _loadAdInterstial();
-                            //   }
-                            // }
+                            isButtonTapped = true;
+                            if (adType == "1") {
+                              if (!isAdLoading) {
+                                _loadAdInterstial();
+                              }
+                            } else if(adType == "2"){
+                              _loadInterstitialAds();
+                              FacebookInterstitialAd.showInterstitialAd();
+                            } else if (adType == "3"){
+                              try {
+                                await startAppSdk
+                                    .loadInterstitialAd(
+                                  prefs: const StartAppAdPreferences(
+                                      adTag: 'home_screen'),
+                                  onAdDisplayed: () {
+                                    debugPrint('onAdDisplayed: interstitial');
+                                  },
+                                  onAdNotDisplayed: () {
+                                    debugPrint(
+                                        'onAdNotDisplayed: interstitial');
+
+                                    // NOTE interstitial ad can be shown only once
+                                    this.startAppInterstitialAd?.dispose();
+                                    this.startAppInterstitialAd = null;
+                                  },
+                                  onAdClicked: () {
+                                    debugPrint('onAdClicked: interstitial');
+                                  },
+                                  onAdHidden: () {
+                                    debugPrint('onAdHidden: interstitial');
+
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                SeletctCategerioesScreen()));
+                                    this.startAppInterstitialAd?.dispose();
+                                    this.startAppInterstitialAd = null;
+                                  },
+                                )
+                                    .then((interstitialAd) {
+                                  this.startAppInterstitialAd = interstitialAd;
+                                  interstitialAd?.show();
+                                });
+                              } on StartAppException catch (ex) {
+                                debugPrint(
+                                    "Error loading or showing Interstitial ad: ${ex.message}");
+                              } catch (error, stackTrace) {
+                                debugPrint(
+                                    "Error loading or showing Interstitial ad: $error");
+                              }
+                            } else{
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          SeletctCategerioesScreen()));
+                            }
                           },
                           child: GridTile(
                             child: Container(
                               padding: EdgeInsets.all(17),
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
-                                  color: Colors.white
-                              ),
+                                  color: Colors.white),
                               child: Column(
                                 children: [
-
                                   ClipOval(
                                     clipBehavior: Clip.antiAlias,
                                     child: Image.asset(
@@ -235,7 +250,9 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
                                   Text(
                                     _text[index],
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15),
                                   ),
                                 ],
                               ),
@@ -281,6 +298,7 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
       ),
     );
   }
+
   void _loadAd() async {
     BannerAd(
       adUnitId: adUnitId,
@@ -306,14 +324,14 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
       ),
     ).load();
   }
+
   void _handleTap() {
     _tapCounter++;
     if (_tapCounter % int.parse(getStorage.read("tapCount").toString()) == 0) {
       _loadAdInterstial();
-
-
     }
   }
+
   void _loadAdInterstial() {
     isAdLoading = true;
     InterstitialAd.load(
@@ -329,11 +347,13 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
               isAdLoading = false;
             },
             onAdDismissedFullScreenContent: (ad) {
-
               setState(() {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>SeletctCategerioesScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => SeletctCategerioesScreen()));
                 ad.dispose();
-                isAdLoading = false;// Dispose only when ad is dismissed
+                isAdLoading = false; // Dispose only when ad is dismissed
               });
             },
             onAdClicked: (ad) {},
@@ -345,12 +365,16 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
         },
         onAdFailedToLoad: (LoadAdError error) {
           print('InterstitialAd failed to load: $error');
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>SeletctCategerioesScreen()));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => SeletctCategerioesScreen()));
           isAdLoading = false;
         },
       ),
     );
   }
+
   @override
   void dispose() {
     _bannerAd?.dispose();
@@ -358,6 +382,7 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
 
     super.dispose();
   }
+
   void _loadInterstitialAds() {
     FacebookInterstitialAd.loadInterstitialAd(
       // placementId: "YOUR_PLACEMENT_ID",
@@ -369,17 +394,25 @@ class _SelectCountriescreenState extends State<SelectCountriescreen> with Widget
 
         /// Once an Interstitial Ad has been dismissed and becomes invalidated,
         /// load a fresh Ad by calling this function.
-        if (result == InterstitialAdResult.DISMISSED ) {
+        if(result == InterstitialAdResult.ERROR && isButtonTapped == true){
+         setState(() {
+           _loadAdInterstial();
+           isButtonTapped = false;
+         });
+        }
+        if (result == InterstitialAdResult.DISMISSED) {
           isInterstitialAdLoaded = false;
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => SeletctCategerioesScreen()));
-
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => SeletctCategerioesScreen()));
 
           _loadInterstitialAds();
         }
       },
     );
   }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // TODO: implement didChangeAppLifecycleState

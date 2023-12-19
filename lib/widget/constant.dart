@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:Santa_prank_call/main.dart';
 import 'package:get/get.dart';
@@ -24,4 +25,8 @@ showSnackBar({required String title, required String msg}){
       backgroundColor: Colors.white);
 }
  String InterstialAdID = getStorage.read("InterStialAdId") ?? "";
-String facebookNativeAdPlacementID =  "IMG_16_9_APP_INSTALL#2312433698835503_2964952163583650";
+String facebookNativeAdPlacementID =  "1077658573437041_1077659226770309";
+
+final String adUnitId = Platform.isAndroid
+    ? "ca-app-pub-3940256099942544/6300978111"
+    : 'ca-app-pub-3940256099942544/2934735716';

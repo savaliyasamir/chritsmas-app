@@ -37,11 +37,11 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
   ];
   BannerAd? _bannerAd;
   bool isButtonTapped = false;
+  bool facebookBannerAdError = false;
+
   StartAppBannerAd? startAppBannerAd;
   StartAppBannerAd? mrecAd;
-  final String adUnitId = Platform.isAndroid
-      ? getStorage.read("BannerAdId")
-      : 'ca-app-pub-3940256099942544/2934735716';
+
   int _tapCounter = 0;
   final String _adUnitId = Platform.isAndroid
       ? InterstialAdID
@@ -49,9 +49,6 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
   int maxFailedLoadAttempts = 3;
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
-
-
-
 
   @override
   void initState() {
@@ -63,16 +60,14 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
     startAppSdk.setTestAdsEnabled(true);
     WidgetsBinding.instance.addObserver(this);
     _loadAd();
-    if(adType == "2"){
+    if (adType == "2") {
       loadBannerAd();
-    }
-    if(adType == "2"){
       _loadInterstitialAds();
     }
     if (adType == "3") {
       startAppSdk
           .loadBannerAd(
-        StartAppBannerType.MREC,
+        StartAppBannerType.BANNER,
         prefs: const StartAppAdPreferences(adTag: 'secondary'),
       )
           .then((mrecAd) {
@@ -88,7 +83,6 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
   }
 
   InterstitialAd? interstitialAd;
-
 
   @override
   Widget build(BuildContext context) {
@@ -145,16 +139,16 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () async {
-                          if(index == 0){
+                          if (index == 0) {
                             isButtonTapped = true;
                             if (adType == "1") {
                               if (!isAdLoading) {
                                 _loadAdInterstial();
                               }
-                            } else if(adType == "2"){
+                            } else if (adType == "2") {
                               _loadInterstitialAds();
                               FacebookInterstitialAd.showInterstitialAd();
-                            } else if (adType == "3"){
+                            } else if (adType == "3") {
                               try {
                                 await startAppSdk
                                     .loadInterstitialAd(
@@ -181,7 +175,7 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                SeletctCategerioesScreen()));
+                                                SelectYourFav()));
                                     this.startAppInterstitialAd?.dispose();
                                     this.startAppInterstitialAd = null;
                                   },
@@ -197,13 +191,13 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
                                 debugPrint(
                                     "Error loading or showing Interstitial ad: $error");
                               }
-                            } else{
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) => SelectYourFav()));
+                            } else {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SelectYourFav()));
                             }
-                          }
-
-                              else {
+                          } else {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -225,17 +219,25 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
           alignment: Alignment.center,
           height: 60,
           color: Colors.black12,
-          child: _facebookBannerAd,
-          // child:(adType == "1" && mrecAd != null)
-          //     ? StartAppBanner(mrecAd!)
-          //     :  _bannerAd != null
-          //     ? SizedBox(
-          //         width: _bannerAd!.size.width.toDouble(),
-          //         height: _bannerAd!.size.height.toDouble(),
-          //         child: AdWidget(ad: _bannerAd!),
-          //       )
-          //     : SizedBox(),
+          child: (adType == "1" && _bannerAd != null)
+              ? SizedBox(
+            width: _bannerAd!.size.width.toDouble(),
+            height: _bannerAd!.size.height.toDouble(),
+            child: AdWidget(ad: _bannerAd!),
+          )
+              : (adType == "2")
+              ? (facebookBannerAdError == true && _bannerAd != null
+              ? SizedBox(
+            width: _bannerAd!.size.width.toDouble(),
+            height: _bannerAd!.size.height.toDouble(),
+            child: AdWidget(ad: _bannerAd!),
+          )
+              : _facebookBannerAd )
+              : (adType == "3" && mrecAd != null)
+              ? StartAppBanner(mrecAd!)
+              : SizedBox(),
         ),
+
       ),
     );
   }
@@ -295,7 +297,7 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
 
               setState(() {
                 ad.dispose();
-                isAdLoading = false;// Dispose only when ad is dismissed
+                isAdLoading = false; // Dispose only when ad is dismissed
               });
             },
             onAdClicked: (ad) {},
@@ -315,6 +317,35 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
     );
   }
 
+  /// facebook interestitial ad
+  void _loadInterstitialAds() {
+    FacebookInterstitialAd.loadInterstitialAd(
+      // placementId: "YOUR_PLACEMENT_ID",
+      placementId: "IMG_16_9_APP_INSTALL#1077658573437041_1077659113436987",
+      listener: (result, value) {
+        print(">> FAN > Interstitial Ad: $result --> $value");
+        if (result == InterstitialAdResult.ERROR && isButtonTapped == true) {
+          setState(() {
+            _loadAdInterstial();
+            isButtonTapped = false;
+          });
+        }
+        if (result == InterstitialAdResult.LOADED)
+          isInterstitialAdLoaded = true;
+
+        /// Once an Interstitial Ad has been dismissed and becomes invalidated,
+        /// load a fresh Ad by calling this function.
+        if (result == InterstitialAdResult.DISMISSED) {
+          isInterstitialAdLoaded = false;
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => SelectYourFav()));
+
+          _loadInterstitialAds();
+        }
+      },
+    );
+  }
+
   /// facebook Banner ad
 
   Widget _facebookBannerAd = SizedBox(width: 0, height: 0);
@@ -326,6 +357,12 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
         bannerSize: BannerSize.STANDARD,
         listener: (result, value) {
           print("$result == $value");
+
+          if (result == BannerAdResult.ERROR) {
+            setState(() {
+              facebookBannerAdError = true;
+            });
+          }
         },
       );
     });
@@ -344,34 +381,7 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
       isPaused = false;
     }
   }
-  void _loadInterstitialAds() {
-    FacebookInterstitialAd.loadInterstitialAd(
-      // placementId: "YOUR_PLACEMENT_ID",
-      placementId: "IMG_16_9_APP_INSTALL#1077658573437041_1077659113436987",
-      listener: (result, value) {
-        print(">> FAN > Interstitial Ad: $result --> $value");
-        if(result == InterstitialAdResult.ERROR && isButtonTapped == true){
-          setState(() {
-            _loadAdInterstial();
-            isButtonTapped = false;
-          });
-        }
-        if (result == InterstitialAdResult.LOADED)
-          isInterstitialAdLoaded = true;
 
-        /// Once an Interstitial Ad has been dismissed and becomes invalidated,
-        /// load a fresh Ad by calling this function.
-        if (result == InterstitialAdResult.DISMISSED ) {
-          isInterstitialAdLoaded = false;
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => SelectYourFav()));
-
-
-          _loadInterstitialAds();
-        }
-      },
-    );
-  }
   @override
   void dispose() {
     _bannerAd?.dispose();

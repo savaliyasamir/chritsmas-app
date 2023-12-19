@@ -23,7 +23,9 @@ class SelectYourFav extends StatefulWidget {
 
 class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserver{
   late BannerAd bannerAd;
+  BannerAd? _bannerAd;
   bool isInterstitialAdLoaded = false;
+  bool facebookBannerAdError = false;
   StartAppInterstitialAd? startAppInterstitialAd;
   var startAppSdk = StartAppSdk();
   StartAppBannerAd? startAppBannerAd;
@@ -42,20 +44,6 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
   final String _adUnitId = Platform.isAndroid
       ? InterstialAdID
       : 'ca-app-pub-3940256099942544/4411468910';
-  initBannerAd() {
-    bannerAd = BannerAd(
-        size: AdSize.fullBanner,
-        adUnitId: adUnit,
-        listener: BannerAdListener(onAdLoaded: (ad) {
-          setState(() {
-            isAdLoaded = true;
-          });
-        }, onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          print(error);
-        }),
-        request: AdRequest());
-  }
 
   var adUnit = getStorage.read("BannerAdId");
   int maxFailedLoadAttempts = 3;
@@ -65,21 +53,20 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
   void initState() {
     // TODO: implement initState
     loadBannerAd();
-    initBannerAd();
+    _loadAd();
     appOpenAdManager.loadAd();
     WidgetsBinding.instance.addObserver(this);
 
     // _createRewardedInterstitialAd();
     if(adType == "2"){
       loadBannerAd();
-    }
-    if(adType == "2"){
       _loadInterstitialAds();
     }
+
     if (adType == "3") {
       startAppSdk
           .loadBannerAd(
-        StartAppBannerType.MREC,
+        StartAppBannerType.BANNER,
         prefs: const StartAppAdPreferences(adTag: 'secondary'),
       )
           .then((mrecAd) {
@@ -93,14 +80,6 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
       });
     }
 
-    // facebookBannerAd = FacebookBannerAd(
-    //   placementId: "IMG_16_9_APP_INSTALL#2312433698835503_2964944860251047",
-    //   bannerSize: BannerSize.STANDARD,
-    //   listener: (p0, p1) {
-    //
-    //   },
-    // );
-    bannerAd.load();
     super.initState();
   }
 
@@ -342,24 +321,54 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
         alignment: Alignment.center,
         height: 60,
         color: Colors.black12,
-        child: _facebookBannerAd,
+        child: (adType == "1" && _bannerAd != null)
+            ? SizedBox(
+          width: _bannerAd!.size.width.toDouble(),
+          height: _bannerAd!.size.height.toDouble(),
+          child: AdWidget(ad: _bannerAd!),
+        )
+            : (adType == "2")
+            ? (facebookBannerAdError == true && _bannerAd != null
+            ? SizedBox(
+          width: _bannerAd!.size.width.toDouble(),
+          height: _bannerAd!.size.height.toDouble(),
+          child: AdWidget(ad: _bannerAd!),
+        )
+            : _facebookBannerAd )
+            : (adType == "3" && mrecAd != null)
+            ? StartAppBanner(mrecAd!)
+            : SizedBox(),
       ),
-      // bottomNavigationBar:(adType == "1" && mrecAd != null)
-      //     ? SizedBox(
-      //     height: bannerAd.size.height.toDouble(),
-      //     width: bannerAd.size.width.toDouble(),
-      //     child: StartAppBanner(mrecAd!) )
-      //     :   isAdLoaded
-      //     ? SizedBox(
-      //         height: bannerAd.size.height.toDouble(),
-      //         width: bannerAd.size.width.toDouble(),
-      //         child: AdWidget(
-      //           ad: bannerAd,
-      //         ),
-      //       )
-      //     : SizedBox(),
+
     );
   }
+
+  void _loadAd() async {
+    BannerAd(
+      adUnitId: adUnitId,
+      request: const AdRequest(),
+      size: AdSize.fullBanner,
+      listener: BannerAdListener(
+        // Called when an ad is successfully received.
+        onAdLoaded: (ad) {
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        // Called when an ad request failed.
+        onAdFailedToLoad: (ad, err) {
+          ad.dispose();
+        },
+        // Called when an ad opens an overlay that covers the screen.
+        onAdOpened: (Ad ad) {},
+        // Called when an ad removes an overlay that covers the screen.
+        onAdClosed: (Ad ad) {},
+        // Called when an impression occurs on the ad.
+        onAdImpression: (Ad ad) {},
+      ),
+    ).load();
+  }
+
 
   /// facebook Banner ad
 
@@ -372,6 +381,11 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
         bannerSize: BannerSize.STANDARD,
         listener: (result, value) {
           print("$result == $value");
+          if (result == BannerAdResult.ERROR) {
+            setState(() {
+              facebookBannerAdError = true;
+            });
+          }
         },
       );
     });

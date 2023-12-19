@@ -23,8 +23,10 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
     with WidgetsBindingObserver {
   bool value = false;
   bool value1 = false;
+
   late BannerAd _bannerAd;
   bool _isBannerAdReady = false;
+
   NativeAd? _nativeAd;
   StartAppInterstitialAd? startAppInterstitialAd;
 
@@ -57,7 +59,9 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
   @override
   void initState() {
     super.initState();
-    FacebookAudienceNetwork.init();
+    FacebookAudienceNetwork.init(
+          testingId: "37b1da9d-b48c-4103-a393-2e095e734bd6", //optional
+    );
     appOpenAdManager.loadAd();
     _loadAd();
 

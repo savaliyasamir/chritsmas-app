@@ -70,13 +70,13 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
   _callNativeAd() async  {
-    // final String url = 'https://abvengineering.in/addata/adone.html';
-    final String url = "https://aercal.in/adapifile/callprank.html";
+    final String url = 'https://abvengineering.in/addata/adone.html';
+    // final String url = "https://aercal.in/adapifile/callprank.html";
     try {
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
-        List data = json.decode(response.body);
+        List data = jsonDecode(response.body);
         String DisclamierLink = data[0]["app_disclaimerlink"];
         String TermsLink = data[0]["app_Termslink"];
         getStorage.write("DisclamierLink", DisclamierLink);

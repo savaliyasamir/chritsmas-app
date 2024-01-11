@@ -38,6 +38,7 @@ class _PluginRegistrant {
           '`camera_android` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
       try {
@@ -47,6 +48,7 @@ class _PluginRegistrant {
           '`path_provider_android` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
       try {
@@ -56,6 +58,7 @@ class _PluginRegistrant {
           '`url_launcher_android` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
       try {
@@ -65,6 +68,7 @@ class _PluginRegistrant {
           '`video_player_android` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
       try {
@@ -74,6 +78,7 @@ class _PluginRegistrant {
           '`webview_flutter_android` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
     } else if (Platform.isIOS) {
@@ -84,6 +89,7 @@ class _PluginRegistrant {
           '`camera_avfoundation` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
       try {
@@ -93,6 +99,7 @@ class _PluginRegistrant {
           '`path_provider_foundation` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
       try {
@@ -102,6 +109,7 @@ class _PluginRegistrant {
           '`url_launcher_ios` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
       try {
@@ -111,6 +119,7 @@ class _PluginRegistrant {
           '`video_player_avfoundation` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
       try {
@@ -120,6 +129,7 @@ class _PluginRegistrant {
           '`webview_flutter_wkwebview` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
     } else if (Platform.isLinux) {
@@ -130,6 +140,7 @@ class _PluginRegistrant {
           '`device_info_plus` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
       try {
@@ -139,6 +150,7 @@ class _PluginRegistrant {
           '`path_provider_linux` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
       try {
@@ -148,6 +160,7 @@ class _PluginRegistrant {
           '`url_launcher_linux` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
     } else if (Platform.isMacOS) {
@@ -158,6 +171,7 @@ class _PluginRegistrant {
           '`path_provider_foundation` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
       try {
@@ -167,6 +181,7 @@ class _PluginRegistrant {
           '`url_launcher_macos` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
     } else if (Platform.isWindows) {
@@ -177,6 +192,7 @@ class _PluginRegistrant {
           '`device_info_plus` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
       try {
@@ -186,6 +202,7 @@ class _PluginRegistrant {
           '`path_provider_windows` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
       try {
@@ -195,6 +212,7 @@ class _PluginRegistrant {
           '`url_launcher_windows` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
+        rethrow;
       }
 
     }

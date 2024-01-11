@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:Santa_prank_call/main.dart';
+import 'package:facebook_audience_network/facebook_audience_network.dart';
 import 'package:get/get.dart';
 import 'dart:ui';
 import 'package:http/http.dart' as http;
@@ -24,4 +25,36 @@ showSnackBar({required String title, required String msg}){
       backgroundColor: Colors.white);
 }
  String InterstialAdID = getStorage.read("InterStialAdId") ?? "";
-String facebookNativeAdPlacementID =  "IMG_16_9_APP_INSTALL#2312433698835503_2964952163583650";
+String facebookNativeAdPlacementID =  "IMG_16_9_APP_INSTALL#1077658573437041_1077659226770309";
+
+Widget currentFacebookNativeAd = SizedBox(
+  width: 0.0,
+  height: 0.0,
+);
+
+
+Widget facebookNativeAd() {
+  return FacebookNativeAd(
+    placementId: facebookNativeAdPlacementID,
+    adType: NativeAdType.NATIVE_AD_VERTICAL,
+    width: double.infinity,
+    height: 300,
+    backgroundColor: Colors.blue,
+    titleColor: Colors.white,
+    descriptionColor: Colors.white,
+    buttonColor: Colors.deepPurple,
+    buttonTitleColor: Colors.white,
+    buttonBorderColor: Colors.white,
+    listener: (result, value) {
+      print("Native Ad: $result --> $value");
+      if (result == NativeAdResult.ERROR) {
+
+      }
+      if(result == NativeAdResult.LOADED){
+        currentFacebookNativeAd = facebookNativeAd();
+      }
+    },
+    keepExpandedWhileLoading: true,
+    expandAnimationDuraion: 1000,
+  );
+}

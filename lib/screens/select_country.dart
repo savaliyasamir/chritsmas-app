@@ -5,6 +5,7 @@ import 'package:Santa_prank_call/screens/selet_categories.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:Santa_prank_call/widget/constant.dart';
 import 'package:facebook_audience_network/ad/ad_interstitial.dart';
+import 'package:facebook_audience_network/facebook_audience_network.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:startapp_sdk/startapp.dart';
@@ -20,7 +21,7 @@ class SelectCountriescreen extends StatefulWidget {
 
 class _SelectCountriescreenState extends State<SelectCountriescreen>
     with WidgetsBindingObserver {
-  BannerAd? _bannerAd;
+  late BannerAd _bannerAd;
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
   bool isInterstitialAdLoaded = false;
@@ -29,14 +30,14 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
   var startAppSdk = StartAppSdk();
   bool isButtonTapped = false;
   StartAppInterstitialAd? startAppInterstitialAd;
-
+  bool isLoadingIo = false;
   InterstitialAd? _interstitialAd;
   int _tapCounter = 0;
   final String _adUnitId = Platform.isAndroid
       ? InterstialAdID
       : 'ca-app-pub-3940256099942544/4411468910';
   final String adUnitId = Platform.isAndroid
-      ? 'ca-app-pub-3940256099942544/6300978111'
+      ? getStorage.read("BannerAdId")
       : 'ca-app-pub-3940256099942544/2934735716';
   bool isAdLoading = false;
 
@@ -49,13 +50,29 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
     startAppSdk.setTestAdsEnabled(true);
     appOpenAdManager.loadAd();
     WidgetsBinding.instance.addObserver(this);
-    _loadAd();
+    _bannerAd = BannerAd(
+      adUnitId: getStorage.read("BannerAdId"),
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (Ad ad) {
+          print('Ad loaded: $ad');
+        },
+        onAdFailedToLoad: (Ad ad, LoadAdError error) {
+          ad.dispose();
+          print('Ad failed to load: $error');
+        },
+      ),
+    );
+
+    _bannerAd!.load();
     // Load the banner ad when the screen initializes
-    if(adUnitId == "3"){
-      loadBannerAd();
+    if(adUnitId == "2"){
+      loadBannerFBAd();
     }
 
     if (adType == "3") {
+      loadBannerAd();
       startAppSdk
           .loadBannerAd(
         StartAppBannerType.MREC,
@@ -126,8 +143,6 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
 
   @override
   Widget build(BuildContext context) {
-    var buttonStyle =
-        ButtonStyle(minimumSize: MaterialStateProperty.all(Size(224, 36)));
 
     return Scaffold(
       body: Container(
@@ -178,16 +193,19 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
                             } else if(adType == "2"){
                               _loadInterstitialAds();
                               FacebookInterstitialAd.showInterstitialAd();
-                            } else if (adType == "3"){
+                            } else if (adType == "3" &&   !isLoadingIo){
                               try {
+                                isLoadingIo = true;
                                 await startAppSdk
                                     .loadInterstitialAd(
                                   prefs: const StartAppAdPreferences(
                                       adTag: 'home_screen'),
                                   onAdDisplayed: () {
+                                    isLoadingIo = false;
                                     debugPrint('onAdDisplayed: interstitial');
                                   },
                                   onAdNotDisplayed: () {
+                                    isLoadingIo = false;
                                     debugPrint(
                                         'onAdNotDisplayed: interstitial');
 
@@ -196,9 +214,11 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
                                     this.startAppInterstitialAd = null;
                                   },
                                   onAdClicked: () {
+                                    isLoadingIo = false;
                                     debugPrint('onAdClicked: interstitial');
                                   },
                                   onAdHidden: () {
+                                    isLoadingIo = false;
                                     debugPrint('onAdHidden: interstitial');
 
                                     Navigator.push(
@@ -215,6 +235,7 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
                                   interstitialAd?.show();
                                 });
                               } on StartAppException catch (ex) {
+                                isLoadingIo = false;
                                 debugPrint(
                                     "Error loading or showing Interstitial ad: ${ex.message}");
                               } catch (error, stackTrace) {
@@ -296,33 +317,33 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
           ],
         ),
       ),
+      bottomNavigationBar: Container(
+        alignment: Alignment.center,
+        height: 60,
+        color: Colors.black12,
+
+        child: _bannerAd != null && adType == "1" ? SizedBox(
+           width: _bannerAd.size.width.toDouble(),
+          height: _bannerAd.size.height.toDouble(),
+          child: AdWidget(ad: _bannerAd),
+        ) : (adType == "3" && mrecAd != null)  ? StartAppBanner(mrecAd!) : adType == "2" ?  _facebookBannerAd : SizedBox(),
+      ),
     );
   }
+  /// facebook Banner ad
 
-  void _loadAd() async {
-    BannerAd(
-      adUnitId: adUnitId,
-      request: const AdRequest(),
-      size: AdSize.fullBanner,
-      listener: BannerAdListener(
-        // Called when an ad is successfully received.
-        onAdLoaded: (ad) {
-          setState(() {
-            _bannerAd = ad as BannerAd;
-          });
+  Widget _facebookBannerAd = SizedBox(width: 0, height: 0);
+
+  void loadBannerFBAd() {
+    setState(() {
+      _facebookBannerAd = FacebookBannerAd(
+        placementId: "IMG_16_9_APP_INSTALL#1077658573437041_1077659073436991",
+        bannerSize: BannerSize.STANDARD,
+        listener: (result, value) {
+          print("$result == $value");
         },
-        // Called when an ad request failed.
-        onAdFailedToLoad: (ad, err) {
-          ad.dispose();
-        },
-        // Called when an ad opens an overlay that covers the screen.
-        onAdOpened: (Ad ad) {},
-        // Called when an ad removes an overlay that covers the screen.
-        onAdClosed: (Ad ad) {},
-        // Called when an impression occurs on the ad.
-        onAdImpression: (Ad ad) {},
-      ),
-    ).load();
+      );
+    });
   }
 
   void _handleTap() {
@@ -344,7 +365,7 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
             onAdImpression: (ad) {},
             onAdFailedToShowFullScreenContent: (ad, err) {
               ad.dispose();
-              isAdLoading = false;
+
             },
             onAdDismissedFullScreenContent: (ad) {
               setState(() {

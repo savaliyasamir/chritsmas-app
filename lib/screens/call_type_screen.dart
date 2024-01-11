@@ -52,8 +52,6 @@ class _CallTypeScreenState extends State<CallTypeScreen>
     WidgetsBinding.instance.addObserver(this);
     _loadAd();
 
-
-
     /// Ad type 1 = google Ad
     if (adType == "1") {
       _loadVersionString();
@@ -212,7 +210,9 @@ class _CallTypeScreenState extends State<CallTypeScreen>
                   isButtonTapped = true;
 
                   if (adType == "1") {
-                    _loadAdInterstial();
+                    if (!isAdLoading) {
+                      _loadAdInterstial();
+                    }
                   } else if (adType == "2") {
                     _loadInterstitialAds();
                     FacebookInterstitialAd.showInterstitialAd();
@@ -245,7 +245,8 @@ class _CallTypeScreenState extends State<CallTypeScreen>
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => AcceptPolicyScreen()));
+                                    builder: (context) =>
+                                        AcceptPolicyScreen()));
                             this.startAppInterstitialAd?.dispose();
                             this.startAppInterstitialAd = null;
                           },
@@ -291,17 +292,19 @@ class _CallTypeScreenState extends State<CallTypeScreen>
             Container(
                 height: MediaQuery.of(context).size.height * 0.4,
                 width: MediaQuery.of(context).size.width,
-                child: (adType == "1" &&  (_nativeAdIsLoaded && _nativeAd != null))
-                    ? AdWidget(ad: _nativeAd!)
-                    : (adType == "2")
-                    ?  (facebookNativeAdError == true ? AdWidget(ad: _nativeAd!) : currentFacebookNativeAd)
-                    : ((adType == "3" && mrecAd != null)
-                    ? StartAppBanner(mrecAd!)
-                    : (_nativeAdIsLoaded && _nativeAd != null)
-                    ? SizedBox()
-                    : null)
-            ),
-
+                child:
+                    (adType == "1" && (_nativeAdIsLoaded && _nativeAd != null))
+                        ? AdWidget(ad: _nativeAd!)
+                        : (adType == "2")
+                            ? (facebookNativeAdError == true &&
+                                    (_nativeAdIsLoaded && _nativeAd != null)
+                                ? AdWidget(ad: _nativeAd!)
+                                : currentFacebookNativeAd)
+                            : ((adType == "3" && mrecAd != null)
+                                ? StartAppBanner(mrecAd!)
+                                : (_nativeAdIsLoaded && _nativeAd != null)
+                                    ? SizedBox()
+                                    : null)),
           ],
         ),
       ),
@@ -385,6 +388,7 @@ class _CallTypeScreenState extends State<CallTypeScreen>
                   context,
                   MaterialPageRoute(
                       builder: (context) => AcceptPolicyScreen()));
+              isAdLoading = false;
             },
             onAdDismissedFullScreenContent: (ad) {
               setState(() {

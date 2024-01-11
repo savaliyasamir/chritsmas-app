@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:Santa_prank_call/main.dart';
-import 'package:Santa_prank_call/screens/attend_call.dart';
 import 'package:Santa_prank_call/screens/attendcall_screen.dart';
 import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/ads.dart';
@@ -22,7 +21,7 @@ class SelectYourFav extends StatefulWidget {
 }
 
 class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserver{
-  late BannerAd bannerAd;
+  late BannerAd _bannerAd;
   bool isInterstitialAdLoaded = false;
   StartAppInterstitialAd? startAppInterstitialAd;
   var startAppSdk = StartAppSdk();
@@ -42,20 +41,7 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
   final String _adUnitId = Platform.isAndroid
       ? InterstialAdID
       : 'ca-app-pub-3940256099942544/4411468910';
-  initBannerAd() {
-    bannerAd = BannerAd(
-        size: AdSize.fullBanner,
-        adUnitId: adUnit,
-        listener: BannerAdListener(onAdLoaded: (ad) {
-          setState(() {
-            isAdLoaded = true;
-          });
-        }, onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          print(error);
-        }),
-        request: AdRequest());
-  }
+  bool isLoadingIo = false;
 
   var adUnit = getStorage.read("BannerAdId");
   int maxFailedLoadAttempts = 3;
@@ -64,8 +50,22 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
   @override
   void initState() {
     // TODO: implement initState
-    loadBannerAd();
-    initBannerAd();
+    _bannerAd = BannerAd(
+      adUnitId: getStorage.read("BannerAdId"),
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (Ad ad) {
+          print('Ad loaded: $ad');
+        },
+        onAdFailedToLoad: (Ad ad, LoadAdError error) {
+          ad.dispose();
+          print('Ad failed to load: $error');
+        },
+      ),
+    );
+
+    _bannerAd!.load();
     appOpenAdManager.loadAd();
     WidgetsBinding.instance.addObserver(this);
 
@@ -100,7 +100,7 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
     //
     //   },
     // );
-    bannerAd.load();
+
     super.initState();
   }
 
@@ -262,8 +262,9 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
                     } else if (adType == "2") {
                       _loadInterstitialAds();
                       FacebookInterstitialAd.showInterstitialAd();
-                    } else if (adType == "3") {
+                    } else if (adType == "3" && !isLoadingIo) {
                       try {
+                        isLoadingIo = true;
                         await startAppSdk
                             .loadInterstitialAd(
                           prefs: const StartAppAdPreferences(
@@ -272,6 +273,7 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
                             debugPrint('onAdDisplayed: interstitial');
                           },
                           onAdNotDisplayed: () {
+                            isLoadingIo = false;
                             debugPrint(
                                 'onAdNotDisplayed: interstitial');
 
@@ -280,9 +282,11 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
                             this.startAppInterstitialAd = null;
                           },
                           onAdClicked: () {
+                            isLoadingIo = false;
                             debugPrint('onAdClicked: interstitial');
                           },
                           onAdHidden: () {
+                            isLoadingIo = false;
                             debugPrint('onAdHidden: interstitial');
 
                             Navigator.push(context,
@@ -298,6 +302,7 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
                           interstitialAd?.show();
                         });
                       } on StartAppException catch (ex) {
+                        isLoadingIo = false;
                         debugPrint(
                             "Error loading or showing Interstitial ad: ${ex
                                 .message}");
@@ -338,26 +343,18 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
           ])),
         /// facebook Banner ad
 
+
       bottomNavigationBar: Container(
         alignment: Alignment.center,
         height: 60,
         color: Colors.black12,
-        child: _facebookBannerAd,
+
+        child: _bannerAd != null && adType == "1"? SizedBox(
+          width: _bannerAd.size.width.toDouble(),
+          height: _bannerAd.size.height.toDouble(),
+          child: AdWidget(ad: _bannerAd),
+        ) : (adType == "3" && mrecAd != null)  ? StartAppBanner(mrecAd!) : _facebookBannerAd,
       ),
-      // bottomNavigationBar:(adType == "1" && mrecAd != null)
-      //     ? SizedBox(
-      //     height: bannerAd.size.height.toDouble(),
-      //     width: bannerAd.size.width.toDouble(),
-      //     child: StartAppBanner(mrecAd!) )
-      //     :   isAdLoaded
-      //     ? SizedBox(
-      //         height: bannerAd.size.height.toDouble(),
-      //         width: bannerAd.size.width.toDouble(),
-      //         child: AdWidget(
-      //           ad: bannerAd,
-      //         ),
-      //       )
-      //     : SizedBox(),
     );
   }
 
@@ -389,12 +386,12 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
             onAdImpression: (ad) {},
             onAdFailedToShowFullScreenContent: (ad, err) {
               ad.dispose();
-              setState(() {
+              isAdLoading = false;
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => AttendCallScreenForVc(
                       indexnumber: index,
                     )));
-              });
+
             },
             onAdDismissedFullScreenContent: (ad) {
 

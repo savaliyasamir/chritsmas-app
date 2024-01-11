@@ -92,6 +92,7 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
+        padding: EdgeInsets.only(bottom: 15),
         child: Column(
           children: [
             Container(
@@ -227,7 +228,9 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
                 isButtonTapped = true;
 
                 if (adType == "1") {
-                  _loadAdInterstial();
+                  if(!isAdLoading){
+                    _loadAdInterstial();
+                  }
                 } else if (adType == "2") {
                   _loadInterstitialAds();
                   FacebookInterstitialAd.showInterstitialAd();
@@ -306,12 +309,12 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
               height: 10,
             ),
             Container(
-                height: MediaQuery.of(context).size.height * 0.4,
+                height: MediaQuery.of(context).size.height * 0.48,
                 width: MediaQuery.of(context).size.width,
                 child: (adType == "1" &&  (_nativeAdIsLoaded && _nativeAd != null))
                     ? AdWidget(ad: _nativeAd!)
                     : (adType == "2")
-                    ?  (facebookNativeAdError == true ? AdWidget(ad: _nativeAd!) : currentFacebookNativeAd)
+                    ?  (facebookNativeAdError == true &&  (_nativeAdIsLoaded && _nativeAd != null) ? AdWidget(ad: _nativeAd!) : currentFacebookNativeAd)
                     : ((adType == "3" && mrecAd != null)
                     ? StartAppBanner(mrecAd!)
                     : (_nativeAdIsLoaded && _nativeAd != null)
@@ -344,7 +347,6 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
             });
           },
           onAdFailedToLoad: (ad, error) {
-            // ignore: avoid_print
             print('$NativeAd failedToLoad: $error');
             ad.dispose();
           },

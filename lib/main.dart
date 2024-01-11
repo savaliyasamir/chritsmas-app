@@ -15,7 +15,7 @@ void main() async {
   await GetStorage.init();
   PushNotificationService().setupInteractedMessage();
 
-  WidgetsFlutterBinding.ensureInitialized();
+  await WidgetsFlutterBinding.ensureInitialized();
   // FacebookAudienceNetwork.init();
 
   await MobileAds.instance.initialize().then(

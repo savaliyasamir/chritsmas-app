@@ -50,32 +50,38 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
   int maxFailedLoadAttempts = 3;
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
-
+  bool _isLoaded = false;
+  void loadAd() {
+    _bannerAd = BannerAd(
+      adUnitId: adUnitId,
+      request: const AdRequest(),
+      size: AdSize.fullBanner,
+      listener: BannerAdListener(
+        // Called when an ad is successfully received.
+        onAdLoaded: (ad) {
+          debugPrint('$ad loaded.');
+          setState(() {
+            _isLoaded = true;
+          });
+        },
+        // Called when an ad request failed.
+        onAdFailedToLoad: (ad, err) {
+          debugPrint('BannerAd failed to load: $err');
+          // Dispose the ad here to free resources.
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
   @override
   void initState() {
     super.initState();
     // _createRewardedInterstitialAd();
-
+    loadAd();
     appOpenAdManager.loadAd();
 
     startAppSdk.setTestAdsEnabled(true);
     WidgetsBinding.instance.addObserver(this);
-    _bannerAd = BannerAd(
-      adUnitId: getStorage.read("BannerAdId"),
-      size: AdSize.banner,
-      request: AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (Ad ad) {
-          print('Ad loaded: $ad');
-        },
-        onAdFailedToLoad: (Ad ad, LoadAdError error) {
-          ad.dispose();
-          print('Ad failed to load: $error');
-        },
-      ),
-    );
-
-    _bannerAd!.load();
     if (adType == "2") {
       loadBannerAd();
     }
@@ -240,12 +246,12 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
             )),
         bottomNavigationBar: Container(
           alignment: Alignment.center,
-          height: 60,
+          height: 75,
           color: Colors.black12,
 
-          child: _bannerAd != null && adType == "1"? SizedBox(
+          child: _isLoaded != false && adType == "1"? SizedBox(
             width: _bannerAd.size.width.toDouble(),
-            height: _bannerAd.size.height.toDouble(),
+            height: _bannerAd.size.width.toDouble(),
             child: AdWidget(ad: _bannerAd),
           ) : (adType == "3" && mrecAd != null)  ? StartAppBanner(mrecAd!) : _facebookBannerAd,
         ),
@@ -311,7 +317,7 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
   void loadBannerAd() {
     setState(() {
       _facebookBannerAd = FacebookBannerAd(
-        placementId: "IMG_16_9_APP_INSTALL#1077658573437041_1077659073436991",
+        placementId: facebookBannerAdId,
         bannerSize: BannerSize.STANDARD,
         listener: (result, value) {
           print("$result == $value");
@@ -337,7 +343,7 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
   void _loadInterstitialAds() {
     FacebookInterstitialAd.loadInterstitialAd(
       // placementId: "YOUR_PLACEMENT_ID",
-      placementId: "IMG_16_9_APP_INSTALL#1077658573437041_1077659113436987",
+      placementId: FacebookInterstailAdId,
       listener: (result, value) {
         print(">> FAN > Interstitial Ad: $result --> $value");
         if (result == InterstitialAdResult.ERROR && isButtonTapped == true) {

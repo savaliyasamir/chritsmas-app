@@ -24,8 +24,11 @@ showSnackBar({required String title, required String msg}){
       colorText: Colors.red,
       backgroundColor: Colors.white);
 }
- String InterstialAdID = getStorage.read("InterStialAdId") ?? "";
-String facebookNativeAdPlacementID =  "IMG_16_9_APP_INSTALL#1077658573437041_1077659226770309";
+String InterstialAdID = getStorage.read("InterStialAdId") ?? "";
+String facebookBannerAdId = getStorage.read("FbBaAdId") == "" ? "IMG_16_9_APP_INSTALL#1077658573437041_1077659073436991" : getStorage.read("FbBaAdId");
+String facebookNativeAdPlacementID = getStorage.read("FbNAdId") == "" ? "IMG_16_9_APP_INSTALL#2312433698835503_2964952163583650" : getStorage.read("FbNAdId");
+String FacebookInterstailAdId = getStorage.read("FbInAdId") == "" ? "IMG_16_9_APP_INSTALL#1077658573437041_1077659113436987" : getStorage.read("FbInAdId");
+// String facebookNativeAdPlacementID =  "IMG_16_9_APP_INSTALL#2312433698835503_2964952163583650";
 
 Widget currentFacebookNativeAd = SizedBox(
   width: 0.0,

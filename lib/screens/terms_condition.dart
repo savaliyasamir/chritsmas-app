@@ -173,12 +173,18 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
                   SizedBox(
                     width: 16,
                   ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    child: Text(
-                      "Kindly review our comprehensive Terms \nand Condition",
-                      style: TextStyle(
-                        fontSize: 17,
+                  GestureDetector(
+                    onTap: () {
+                      _launchUrl(_termsLink.toString());
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      child: Text(
+                        "Kindly review our comprehensive Terms \nand Condition",
+                        style: TextStyle(
+                          fontSize: 17,
+                            fontWeight: FontWeight.w600
+                        ),
                       ),
                     ),
                   )
@@ -217,45 +223,27 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
                   SizedBox(
                     width: 16,
                   ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    child: Text(
-                      "Please take a moment to review our\nDisclaimer statement",
-                      style: TextStyle(
-                        fontSize: 17,
+                  GestureDetector(
+                    onTap: () {
+                      _launchUrl(_disclamierLink.toString());
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      child: Text(
+                        "Please take a moment to review our\nDisclaimer statement",
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600
+                        ),
                       ),
                     ),
                   )
                 ],
               ),
               SizedBox(
-                height: 20,
+                height: 30,
               ),
-              GestureDetector(
-                onTap: () {
-                  _launchUrl(_termsLink.toString());
-                },
-                child: Center(
-                  child: Text(
-                    "Please read our Terms and Conditions",
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  _launchUrl(_disclamierLink.toString());
-                },
-                child: Center(
-                  child: Text(
-                    "Please read our Disclaimer",
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 15,
-              ),
+
               GestureDetector(
                 onTap: () async {
                   isButtonTapped = true;
@@ -492,7 +480,7 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
   void _loadInterstitialAds() {
     FacebookInterstitialAd.loadInterstitialAd(
       // placementId: "YOUR_PLACEMENT_ID",
-      placementId: "IMG_16_9_APP_INSTALL#1077658573437041_1077659113436987",
+      placementId: FacebookInterstailAdId,
       listener: (result, value) {
         print(">> FAN > Interstitial Ad: $result --> $value");
         if (result == InterstitialAdResult.LOADED)

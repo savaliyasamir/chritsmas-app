@@ -100,7 +100,7 @@ class _CallTypeScreenState extends State<CallTypeScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text(
-                    "Hi, samantha!",
+                    "Hi, there!",
                     style: TextStyle(
                         color: textcolor,
                         fontSize: 28,
@@ -422,7 +422,7 @@ class _CallTypeScreenState extends State<CallTypeScreen>
   void _loadInterstitialAds() {
     FacebookInterstitialAd.loadInterstitialAd(
       // placementId: "YOUR_PLACEMENT_ID",
-      placementId: "IMG_16_9_APP_INSTALL#1077658573437041_1077659113436987",
+      placementId: FacebookInterstailAdId,
       listener: (result, value) {
         print(">> FAN > Interstitial Ad: $result --> $value");
         if (result == InterstitialAdResult.LOADED)

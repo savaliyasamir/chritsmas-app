@@ -87,7 +87,13 @@ class _SplashScreenState extends State<SplashScreen> {
         String InterStialAdId = data[0]["iad"];
         String OpenAdID = data[0]["oad"];
         String tapCount = data[0]["adscount"];
+        String FbInAdId = data[0]["fiad"];
+        String FbNAdId = data[0]["fnad"];
+        String FbBaAdId = data[0]["fbad"];
+        getStorage.write("FbNAdId",FbNAdId);
+        getStorage.write("FbBaAdId", FbBaAdId);
         getStorage.write("NativAdId", nad2Value);
+        getStorage.write("FbInAdId", FbInAdId);
         getStorage.write("tapCount", tapCount);
         getStorage.write("BannerAdId", BannerAdId);
         getStorage.write("InterStialAdId", InterStialAdId);

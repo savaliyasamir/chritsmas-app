@@ -284,6 +284,18 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "in_app_review",
+      "rootUri": "file:///C:/flutter/flutter_windows_3.0.2-stable/flutter/.pub-cache/hosted/pub.dartlang.org/in_app_review-2.0.8",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "in_app_review_platform_interface",
+      "rootUri": "file:///C:/flutter/flutter_windows_3.0.2-stable/flutter/.pub-cache/hosted/pub.dartlang.org/in_app_review_platform_interface-2.0.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "js",
       "rootUri": "file:///C:/flutter/flutter_windows_3.0.2-stable/flutter/.pub-cache/hosted/pub.dartlang.org/js-0.6.4",
       "packageUri": "lib/",
@@ -662,7 +674,7 @@
       "languageVersion": "2.18"
     }
   ],
-  "generated": "2023-12-15T05:25:48.363599Z",
+  "generated": "2024-01-11T08:37:28.149521Z",
   "generator": "pub",
   "generatorVersion": "2.18.2"
 }

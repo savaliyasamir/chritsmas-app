@@ -285,7 +285,7 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => AcceptPolicyScreen()));
+                          builder: (context) => SelectCountriescreen()));
                 }
               },
               child: Container(
@@ -401,7 +401,7 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
   void _loadInterstitialAds() {
     FacebookInterstitialAd.loadInterstitialAd(
       // placementId: "YOUR_PLACEMENT_ID",
-      placementId: "IMG_16_9_APP_INSTALL#1077658573437041_1077659113436987",
+      placementId: FacebookInterstailAdId,
       listener: (result, value) {
         print(">> FAN > Interstitial Ad: $result --> $value");
         if (result == InterstitialAdResult.LOADED)

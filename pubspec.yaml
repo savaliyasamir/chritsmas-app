@@ -44,6 +44,7 @@ dependencies:
   url_launcher:
   firebase_messaging: ^14.1.0
   firebase_core: ^2.2.0
+  in_app_review: ^2.0.2
   get:
   get_storage:
   audioplayers_web:

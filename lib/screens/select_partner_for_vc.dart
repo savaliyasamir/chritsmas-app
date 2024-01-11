@@ -43,29 +43,38 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
       : 'ca-app-pub-3940256099942544/4411468910';
   bool isLoadingIo = false;
 
-  var adUnit = getStorage.read("BannerAdId");
+  final String adUnitId = Platform.isAndroid
+      ? getStorage.read("BannerAdId")
+      : 'ca-app-pub-3940256099942544/2934735716';
   int maxFailedLoadAttempts = 3;
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
+  bool _isLoaded = false;
+  void loadAd() {
+    _bannerAd = BannerAd(
+      adUnitId: adUnitId,
+      request: const AdRequest(),
+      size: AdSize.fullBanner,
+      listener: BannerAdListener(
+        // Called when an ad is successfully received.
+        onAdLoaded: (ad) {
+          debugPrint('$ad loaded.');
+          setState(() {
+            _isLoaded = true;
+          });
+        },
+        // Called when an ad request failed.
+        onAdFailedToLoad: (ad, err) {
+          debugPrint('BannerAd failed to load: $err');
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
   @override
   void initState() {
     // TODO: implement initState
-    _bannerAd = BannerAd(
-      adUnitId: getStorage.read("BannerAdId"),
-      size: AdSize.banner,
-      request: AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (Ad ad) {
-          print('Ad loaded: $ad');
-        },
-        onAdFailedToLoad: (Ad ad, LoadAdError error) {
-          ad.dispose();
-          print('Ad failed to load: $error');
-        },
-      ),
-    );
-
-    _bannerAd!.load();
+    loadAd();
     appOpenAdManager.loadAd();
     WidgetsBinding.instance.addObserver(this);
 
@@ -346,12 +355,12 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
 
       bottomNavigationBar: Container(
         alignment: Alignment.center,
-        height: 60,
+        height: 75,
         color: Colors.black12,
 
-        child: _bannerAd != null && adType == "1"? SizedBox(
+        child: _isLoaded != false && adType == "1"? SizedBox(
           width: _bannerAd.size.width.toDouble(),
-          height: _bannerAd.size.height.toDouble(),
+          height: _bannerAd.size.width.toDouble(),
           child: AdWidget(ad: _bannerAd),
         ) : (adType == "3" && mrecAd != null)  ? StartAppBanner(mrecAd!) : _facebookBannerAd,
       ),
@@ -365,7 +374,7 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
   void loadBannerAd() {
     setState(() {
       _facebookBannerAd = FacebookBannerAd(
-        placementId: "IMG_16_9_APP_INSTALL#1077658573437041_1077659073436991",
+        placementId: facebookBannerAdId,
         bannerSize: BannerSize.STANDARD,
         listener: (result, value) {
           print("$result == $value");
@@ -425,7 +434,7 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
   void _loadInterstitialAds() {
     FacebookInterstitialAd.loadInterstitialAd(
       // placementId: "YOUR_PLACEMENT_ID",
-      placementId: "IMG_16_9_APP_INSTALL#1077658573437041_1077659113436987",
+      placementId: FacebookInterstailAdId,
       listener: (result, value) {
         if(result == InterstitialAdResult.ERROR && isButtonTapped == true){
           setState(() {

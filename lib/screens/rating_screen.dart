@@ -7,10 +7,10 @@ import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:facebook_audience_network/ad/ad_interstitial.dart';
 import 'package:facebook_audience_network/ad/ad_native.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:startapp_sdk/startapp.dart';
 
 import '../widget/constant.dart';
@@ -38,6 +38,8 @@ class _RatingScreenState extends State<RatingScreen>
   bool facebookNativeAdError = false;
   var startAppSdk = StartAppSdk();
   StartAppInterstitialAd? startAppInterstitialAd;
+  final InAppReview inAppReview = InAppReview.instance;
+  bool reviewSubmitted = false;
 
   final String _adUnitId = Platform.isAndroid
       ? InterstialAdID
@@ -45,16 +47,33 @@ class _RatingScreenState extends State<RatingScreen>
   final double _adAspectRatioSmall = (91 / 355);
   final double _adAspectRatioMedium = (370 / 355);
 
+  Future<void> _openAppReview() async {
+    if (reviewSubmitted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ExitScreen()),
+      );
+    } else {
+      if (await inAppReview.isAvailable()) {
+        inAppReview.requestReview();
+        setState(() {
+          reviewSubmitted = true;
+        });
+      } else {
+        print("In-app review is not available on this platform.");
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     appOpenAdManager.loadAd();
-    _showNativeAd();
     startAppSdk.setTestAdsEnabled(true);
-   if(adType == "2"){
-     _loadInterstitialAds();
-     _showFacebookNativeAd();
-   }
+    if (adType == "2") {
+      _loadInterstitialAds();
+      _showFacebookNativeAd();
+    }
     if (adType == "3") {
       startAppSdk
           .loadBannerAd(
@@ -81,9 +100,8 @@ class _RatingScreenState extends State<RatingScreen>
   Widget build(BuildContext context) {
     Future<bool> _onBackPressed() async {
       return await showDialog(
-        context: context,
-        builder: (context) =>
-            AlertDialog(
+            context: context,
+            builder: (context) => AlertDialog(
               title: Text('Are you sure?'),
               content: Text('Do you want to exit the app?'),
               actions: [
@@ -97,7 +115,7 @@ class _RatingScreenState extends State<RatingScreen>
                 ),
               ],
             ),
-      ) ??
+          ) ??
           false;
     }
 
@@ -106,24 +124,17 @@ class _RatingScreenState extends State<RatingScreen>
       child: Scaffold(
         body: SingleChildScrollView(
           child: Container(
-
             child: Column(
               children: [
                 Container(
                   padding: EdgeInsets.all(20),
                   alignment: Alignment.bottomLeft,
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width,
-                  height: MediaQuery
-                      .of(context)
-                      .size
-                      .height * 0.13,
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.13,
                   decoration: BoxDecoration(
                     color: PinkColor,
                     borderRadius:
-                    BorderRadius.only(bottomRight: Radius.circular(100)),
+                        BorderRadius.only(bottomRight: Radius.circular(100)),
                   ),
                   child: Text(
                     "How was your experience?",
@@ -143,12 +154,11 @@ class _RatingScreenState extends State<RatingScreen>
                   direction: Axis.horizontal,
                   allowHalfRating: true,
                   itemCount: 5,
-                  itemBuilder: (context, _) =>
-                      Icon(
-                        Icons.star,
-                        size: 20,
-                        color: Colors.orangeAccent,
-                      ),
+                  itemBuilder: (context, _) => Icon(
+                    Icons.star,
+                    size: 20,
+                    color: Colors.orangeAccent,
+                  ),
                   unratedColor: Colors.black12,
                   onRatingUpdate: (rating) {},
                 ),
@@ -178,8 +188,11 @@ class _RatingScreenState extends State<RatingScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     GestureDetector(
-                      onTap: ()  {
-                        Navigator.push(context,MaterialPageRoute(builder: (context)=>ExitScreen()));
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ExitScreen()));
                       },
                       child: Container(
                         alignment: Alignment.center,
@@ -199,8 +212,8 @@ class _RatingScreenState extends State<RatingScreen>
                       ),
                     ),
                     GestureDetector(
-                      onTap: ()  {
-                        Navigator.push(context,MaterialPageRoute(builder: (context)=>ExitScreen()));
+                      onTap: () {
+                        _openAppReview();
                       },
                       child: Container(
                         alignment: Alignment.center,
@@ -224,52 +237,34 @@ class _RatingScreenState extends State<RatingScreen>
                 SizedBox(
                   height: 10,
                 ),
-
                 Container(
                     height: MediaQuery.of(context).size.height * 0.48,
                     width: MediaQuery.of(context).size.width,
-                    child:   (adType == "1" &&  (_nativeAdIsLoaded && _nativeAd != null))
+                    child: (adType == "1" &&
+                            (_nativeAdIsLoaded && _nativeAd != null))
                         ? AdWidget(ad: _nativeAd!)
                         : (adType == "2")
-                        ?  (facebookNativeAdError == true &&  (_nativeAdIsLoaded && _nativeAd != null) ? AdWidget(ad: _nativeAd!) : currentFacebookNativeAd)
-                        : ((adType == "3" && mrecAd != null)
-                        ? StartAppBanner(mrecAd!)
-                        : (_nativeAdIsLoaded && _nativeAd != null)
-                        ? SizedBox()
-                        : null)),          ],
+                            ? (facebookNativeAdError == true &&
+                                    (_nativeAdIsLoaded && _nativeAd != null)
+                                ? AdWidget(ad: _nativeAd!)
+                                : currentFacebookNativeAd)
+                            : ((adType == "3" && mrecAd != null)
+                                ? StartAppBanner(mrecAd!)
+                                : (_nativeAdIsLoaded && _nativeAd != null)
+                                    ? SizedBox()
+                                    : null)),
+              ],
             ),
           ),
         ),
-      ),);
-  }
-  Widget _currentNativeAd = SizedBox(
-    width: 0.0,
-    height: 0.0,
-  );
-  _showNativeAd() {
-    setState(() {
-      _currentNativeAd = _nativeAds();
-    });
-  }
-  Widget _nativeAds() {
-    return FacebookNativeAd(
-      placementId: "IMG_16_9_APP_INSTALL#2312433698835503_2964952163583650",
-      adType: NativeAdType.NATIVE_AD_VERTICAL,
-      width: double.infinity,
-      height: 300,
-      backgroundColor: Colors.blue,
-      titleColor: Colors.white,
-      descriptionColor: Colors.white,
-      buttonColor: Colors.deepPurple,
-      buttonTitleColor: Colors.white,
-      buttonBorderColor: Colors.white,
-      listener: (result, value) {
-        print("Native Ad: $result --> $value");
-      },
-      keepExpandedWhileLoading: true,
-      expandAnimationDuraion: 1000,
+      ),
     );
   }
+
+
+
+
+
   /// Loads a native ad.
   void _loadAd() {
     setState(() {
@@ -354,7 +349,7 @@ class _RatingScreenState extends State<RatingScreen>
                   context,
                   MaterialPageRoute(
                       builder: (context) => SeletctCategerioesScreen()),
-                      (route) => false);
+                  (route) => false);
               isAdLoading = false;
             },
             onAdDismissedFullScreenContent: (ad) {
@@ -362,7 +357,7 @@ class _RatingScreenState extends State<RatingScreen>
                   context,
                   MaterialPageRoute(
                       builder: (context) => SeletctCategerioesScreen()),
-                      (route) => false);
+                  (route) => false);
               setState(() {
                 ad.dispose();
                 isAdLoading = false; // Dispose only when ad is dismissed
@@ -381,40 +376,43 @@ class _RatingScreenState extends State<RatingScreen>
               context,
               MaterialPageRoute(
                   builder: (context) => SeletctCategerioesScreen()),
-                  (route) => false);
+              (route) => false);
           isAdLoading = false;
         },
       ),
     );
   }
+
   void _loadInterstitialAds() {
     FacebookInterstitialAd.loadInterstitialAd(
       // placementId: "YOUR_PLACEMENT_ID",
-      placementId: "IMG_16_9_APP_INSTALL#1077658573437041_1077659113436987",
+      placementId: FacebookInterstailAdId,
       listener: (result, value) {
         print(">> FAN > Interstitial Ad: $result --> $value");
         if (result == InterstitialAdResult.LOADED)
           isInterstitialAdLoaded = true;
-        if(result == InterstitialAdResult.ERROR && isButtonTapped == true){
+        if (result == InterstitialAdResult.ERROR && isButtonTapped == true) {
           setState(() {
             _loadAdInterstial();
             isButtonTapped = false;
           });
         }
+
         /// Once an Interstitial Ad has been dismissed and becomes invalidated,
         /// load a fresh Ad by calling this function.
-        if (result == InterstitialAdResult.DISMISSED ) {
+        if (result == InterstitialAdResult.DISMISSED) {
           isInterstitialAdLoaded = false;
-         Navigator.pushAndRemoveUntil(
-             context,
-             MaterialPageRoute(
-                 builder: (context) => SeletctCategerioesScreen()),
-                 (route) => false);
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => SeletctCategerioesScreen()),
+              (route) => false);
           _loadInterstitialAds();
         }
       },
     );
   }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // TODO: implement didChangeAppLifecycleState
@@ -429,43 +427,21 @@ class _RatingScreenState extends State<RatingScreen>
     }
   }
 
-
   /// facebook native ad
 
   Widget currentFacebookNativeAd = SizedBox(
     width: 0.0,
     height: 0.0,
   );
-  Widget facebookNativeAd() {
-    return FacebookNativeAd(
-      placementId: facebookNativeAdPlacementID,
-      adType: NativeAdType.NATIVE_AD_VERTICAL,
-      width: double.infinity,
-      height: 300,
-      backgroundColor: Colors.blue,
-      titleColor: Colors.white,
-      descriptionColor: Colors.white,
-      buttonColor: Colors.deepPurple,
-      buttonTitleColor: Colors.white,
-      buttonBorderColor: Colors.white,
-      listener: (result, value) {
-        print("Native Ad: $result --> $value");
-        if (result == NativeAdResult.ERROR) {
-          setState(() {
-            facebookNativeAdError = true;
-          });
-        }
-      },
-      keepExpandedWhileLoading: true,
-      expandAnimationDuraion: 1000,
-    );
-  }
+
+
+
   _showFacebookNativeAd() {
     setState(() {
-
       currentFacebookNativeAd = facebookNativeAd();
     });
   }
+
   @override
   void dispose() {
     _nativeAd?.dispose();
@@ -473,5 +449,4 @@ class _RatingScreenState extends State<RatingScreen>
 
     super.dispose();
   }
-
 }

@@ -47,7 +47,6 @@ class _CallTypeScreenState extends State<CallTypeScreen>
   void initState() {
     super.initState();
     appOpenAdManager.loadAd();
-    _loadInterstitialAds();
     FacebookAudienceNetwork.init();
     WidgetsBinding.instance.addObserver(this);
     _loadAd();

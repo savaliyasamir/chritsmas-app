@@ -2,6 +2,7 @@ import 'dart:convert';
 
 
 import 'package:Santa_prank_call/main.dart';
+import 'package:Santa_prank_call/screens/select_country.dart';
 import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:camera/camera.dart';
@@ -33,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const TermsConditionScreen(),
+          builder: (context) => const SelectCountriescreen(),
         ),
       );
     });
@@ -82,7 +83,7 @@ class _SplashScreenState extends State<SplashScreen> {
         getStorage.write("DisclamierLink", DisclamierLink);
         getStorage.write("TermsLink", TermsLink);
         String nad2Value = data[0]["nad2"];
-        adType  = "2";
+        adType  = data[0]["btype"];
         String BannerAdId = data[0]["bad"];
         String InterStialAdId = data[0]["iad"];
         String OpenAdID = data[0]["oad"];

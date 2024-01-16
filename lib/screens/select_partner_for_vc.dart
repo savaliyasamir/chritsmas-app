@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:Santa_prank_call/main.dart';
 import 'package:Santa_prank_call/screens/attendcall_screen.dart';
+import 'package:Santa_prank_call/screens/select_country.dart';
 import 'package:Santa_prank_call/screens/terms_condition.dart';
 import 'package:Santa_prank_call/widget/ads.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
@@ -20,9 +21,11 @@ class SelectYourFav extends StatefulWidget {
   State<SelectYourFav> createState() => _SelectYourFavState();
 }
 
-class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserver{
+class _SelectYourFavState extends State<SelectYourFav>
+    with WidgetsBindingObserver {
   late BannerAd _bannerAd;
   bool isInterstitialAdLoaded = false;
+
   // StartAppInterstitialAd? startAppInterstitialAd;
   // var startAppSdk = StartAppSdk();
   // StartAppBannerAd? startAppBannerAd;
@@ -43,47 +46,23 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
       : 'ca-app-pub-3940256099942544/4411468910';
   bool isLoadingIo = false;
 
-  final String adUnitId = Platform.isAndroid
-      ? getStorage.read("BannerAdId")
-      : 'ca-app-pub-3940256099942544/2934735716';
   int maxFailedLoadAttempts = 3;
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
-  bool _isLoaded = false;
-  void loadAd() {
-    _bannerAd = BannerAd(
-      adUnitId: adUnitId,
-      request: const AdRequest(),
-      size: AdSize.fullBanner,
-      listener: BannerAdListener(
-        // Called when an ad is successfully received.
-        onAdLoaded: (ad) {
-          debugPrint('$ad loaded.');
-          setState(() {
-            _isLoaded = true;
-          });
-        },
-        // Called when an ad request failed.
-        onAdFailedToLoad: (ad, err) {
-          debugPrint('BannerAd failed to load: $err');
-          ad.dispose();
-        },
-      ),
-    )..load();
-  }
+  bool facebookBannerAdError = false;
+  bool _isBannerAdReady = false;
+
   @override
   void initState() {
+    _loadBannerAd();
+
     // TODO: implement initState
-    loadAd();
     appOpenAdManager.loadAd();
     WidgetsBinding.instance.addObserver(this);
 
-    // _createRewardedInterstitialAd();
-    if(adType == "2"){
-      loadBannerAd();
-    }
-    if(adType == "2"){
-      _loadInterstitialAds();
+
+    if (adType == "2") {
+      loadFacebookBannerAd();
     }
 /*    if (adType == "3") {
       startAppSdk
@@ -126,6 +105,7 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
   int _numRewardedInterstitialLoadAttempts = 0;
   InterstitialAd? interstitialAd;
   int? selectedCategoryIndex;
+
   //
   // void _createRewardedInterstitialAd() {
   //   RewardedInterstitialAd.load(
@@ -234,150 +214,190 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-          color: Colors.transparent,
-          height: MediaQuery.of(context).size.height,
-          child: Column(children: [
-            Container(
-              padding: EdgeInsets.all(10),
-              alignment: Alignment.bottomRight,
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.13,
-              decoration: BoxDecoration(
-                color: PinkColor,
-                borderRadius:
-                    BorderRadius.only(bottomLeft: Radius.circular(100)),
+        body: Container(
+            color: Colors.transparent,
+            height: MediaQuery.of(context).size.height,
+            child: Column(children: [
+              Container(
+                padding: EdgeInsets.all(10),
+                alignment: Alignment.bottomRight,
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height * 0.13,
+                decoration: BoxDecoration(
+                  color: PinkColor,
+                  borderRadius:
+                      BorderRadius.only(bottomLeft: Radius.circular(100)),
+                ),
+                child: Text(
+                  "Choose your Favourite\nfor video call",
+                  style: TextStyle(
+                      fontSize: 27,
+                      color: textcolor,
+                      fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.right,
+                ),
               ),
-              child: Text(
-                "Choose your Favourite\nfor video call",
-                style: TextStyle(
-                    fontSize: 27,
-                    color: textcolor,
-                    fontWeight: FontWeight.bold),
-                textAlign: TextAlign.right,
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () async{
-                    isButtonTapped = true;
-                    if (adType == "1") {
-                      if (!isAdLoading) {
-                        _loadAdInterstial(index);
-                      }
-                    } else if (adType == "2") {
-                      _loadInterstitialAds();
-                      FacebookInterstitialAd.showInterstitialAd();
-                    } /*else if (adType == "3" && !isLoadingIo) {
-                      try {
-                        isLoadingIo = true;
-                        await startAppSdk
-                            .loadInterstitialAd(
-                          prefs: const StartAppAdPreferences(
-                              adTag: 'home_screen'),
-                          onAdDisplayed: () {
-                            debugPrint('onAdDisplayed: interstitial');
-                          },
-                          onAdNotDisplayed: () {
-                            isLoadingIo = false;
-                            debugPrint(
-                                'onAdNotDisplayed: interstitial');
-
-                            // NOTE interstitial ad can be shown only once
-                            this.startAppInterstitialAd?.dispose();
-                            this.startAppInterstitialAd = null;
-                          },
-                          onAdClicked: () {
-                            isLoadingIo = false;
-                            debugPrint('onAdClicked: interstitial');
-                          },
-                          onAdHidden: () {
-                            isLoadingIo = false;
-                            debugPrint('onAdHidden: interstitial');
-
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) => AttendCallScreenForVc(
-                                  indexnumber: index,
-                                )));
-                            this.startAppInterstitialAd?.dispose();
-                            this.startAppInterstitialAd = null;
-                          },
-                        )
-                            .then((interstitialAd) {
-                          this.startAppInterstitialAd = interstitialAd;
-                          interstitialAd?.show();
-                        });
-                      } on StartAppException catch (ex) {
+              Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () async {
+                        isButtonTapped = true;
+                        if (adType == "1") {
+                          if (!isAdLoading) {
+                            _loadAdInterstial(index);
+                          }
+                        } else if (adType == "2") {
+                          _loadInterstitialAds();
+                          FacebookInterstitialAd.showInterstitialAd();
+                        }
+                        /*else if (adType == "3" && !isLoadingIo) {
+                  try {
+                    isLoadingIo = true;
+                    await startAppSdk
+                        .loadInterstitialAd(
+                      prefs: const StartAppAdPreferences(
+                          adTag: 'home_screen'),
+                      onAdDisplayed: () {
+                        debugPrint('onAdDisplayed: interstitial');
+                      },
+                      onAdNotDisplayed: () {
                         isLoadingIo = false;
                         debugPrint(
-                            "Error loading or showing Interstitial ad: ${ex
-                                .message}");
-                      } catch (error, stackTrace) {
-                        debugPrint(
-                            "Error loading or showing Interstitial ad: $error");
-                      }
-                    }*/ else {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => AttendCallScreenForVc(
-                            indexnumber: index,
-                          )));
-                    }
+                            'onAdNotDisplayed: interstitial');
 
+                        // NOTE interstitial ad can be shown only once
+                        this.startAppInterstitialAd?.dispose();
+                        this.startAppInterstitialAd = null;
+                      },
+                      onAdClicked: () {
+                        isLoadingIo = false;
+                        debugPrint('onAdClicked: interstitial');
+                      },
+                      onAdHidden: () {
+                        isLoadingIo = false;
+                        debugPrint('onAdHidden: interstitial');
 
-                    },
-                    child: Stack(
-                      children: [
-                        Container(
-                            margin: EdgeInsets.only(left: 10, right: 10),
-                            padding: EdgeInsets.all(10),
-                            child: Image.asset(_videoCallerUSerList[index])),
-                        Positioned(
-                            top: 50,
-                            right: 40,
-                            child: Image.asset(
-                              "assets/camera_ic.png",
-                              width: 40,
-                              height: 40,
-                            )),
-                      ],
-                    ),
-                  );
-                },
-                itemCount: _videoCallerUSerList.length,
-              ),
-            )
-          ])),
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => AttendCallScreenForVc(
+                              indexnumber: index,
+                            )));
+                        this.startAppInterstitialAd?.dispose();
+                        this.startAppInterstitialAd = null;
+                      },
+                    )
+                        .then((interstitialAd) {
+                      this.startAppInterstitialAd = interstitialAd;
+                      interstitialAd?.show();
+                    });
+                  } on StartAppException catch (ex) {
+                    isLoadingIo = false;
+                    debugPrint(
+                        "Error loading or showing Interstitial ad: ${ex
+                            .message}");
+                  } catch (error, stackTrace) {
+                    debugPrint(
+                        "Error loading or showing Interstitial ad: $error");
+                  }
+                }*/
+                        else {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AttendCallScreenForVc(
+                                        indexnumber: index,
+                                      )));
+                        }
+                      },
+                      child: Stack(
+                        children: [
+                          Container(
+                              margin: EdgeInsets.only(left: 10, right: 10),
+                              padding: EdgeInsets.all(10),
+                              child: Image.asset(_videoCallerUSerList[index])),
+                          Positioned(
+                              top: 50,
+                              right: 40,
+                              child: Image.asset(
+                                "assets/camera_ic.png",
+                                width: 40,
+                                height: 40,
+                              )),
+                        ],
+                      ),
+                    );
+                  },
+                  itemCount: _videoCallerUSerList.length,
+                ),
+              )
+            ])),
+
         /// facebook Banner ad
 
+        bottomNavigationBar: Container(
+          alignment: Alignment.center,
+          height:  (_isBannerAdReady) ? _bannerAd.size.height.toDouble() : 75,
+          width: MediaQuery.of(context).size.width,
+          child:  (_isBannerAdReady) ?
+          Container(
+            width: _bannerAd.size.width.toDouble(),
+            height: _bannerAd.size.height.toDouble(),
+            child: AdWidget(ad: _bannerAd),
+          )
+              : (adType == "2")
+              ? (facebookBannerAdError == true && _isBannerAdReady != false
+              ? SizedBox(
+            width: _bannerAd.size.width.toDouble(),
+            height: _bannerAd.size.height.toDouble(),
+            child: AdWidget(ad: _bannerAd),
+          )
+              : _facebookBannerAd )
+              : SizedBox(),
+        )
+    );
+  }
 
-      bottomNavigationBar: Container(
-        alignment: Alignment.center,
-        height: 75,
-        color: Colors.black12,
-
-        child: _isLoaded != false && adType == "1"? SizedBox(
-          width: _bannerAd.size.width.toDouble(),
-          height: _bannerAd.size.width.toDouble(),
-          child: AdWidget(ad: _bannerAd),
-        ) : adType == "2" ?  _facebookBannerAd : SizedBox(),
+  /// google Banner ad
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: adUnitId,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          _isBannerAdReady = false;
+          ad.dispose();
+          debugPrint('BannerAd failed to load: $err');
+        },
       ),
     );
+
+    _bannerAd.load();
   }
 
   /// facebook Banner ad
 
   Widget _facebookBannerAd = SizedBox(width: 0, height: 0);
 
-  void loadBannerAd() {
+  void loadFacebookBannerAd() {
     setState(() {
       _facebookBannerAd = FacebookBannerAd(
         placementId: facebookBannerAdId,
         bannerSize: BannerSize.STANDARD,
         listener: (result, value) {
           print("$result == $value");
+
+          if (result == BannerAdResult.ERROR) {
+            setState(() {
+              facebookBannerAdError = true;
+            });
+          }
         },
       );
     });
@@ -396,19 +416,21 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
             onAdFailedToShowFullScreenContent: (ad, err) {
               ad.dispose();
               isAdLoading = false;
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AttendCallScreenForVc(
-                      indexnumber: index,
-                    )));
-
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AttendCallScreenForVc(
+                            indexnumber: index,
+                          )));
             },
             onAdDismissedFullScreenContent: (ad) {
-
               setState(() {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AttendCallScreenForVc(
-                      indexnumber: index,
-                    )));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => AttendCallScreenForVc(
+                              indexnumber: index,
+                            )));
                 ad.dispose();
                 isAdLoading = false;
               });
@@ -423,20 +445,23 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
         onAdFailedToLoad: (LoadAdError error) {
           print('InterstitialAd failed to load: $error');
           isAdLoading = false;
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => AttendCallScreenForVc(
-                indexnumber: index,
-              )));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AttendCallScreenForVc(
+                        indexnumber: index,
+                      )));
         },
       ),
     );
   }
+
   void _loadInterstitialAds() {
     FacebookInterstitialAd.loadInterstitialAd(
       // placementId: "YOUR_PLACEMENT_ID",
       placementId: FacebookInterstailAdId,
       listener: (result, value) {
-        if(result == InterstitialAdResult.ERROR && isButtonTapped == true){
+        if (result == InterstitialAdResult.ERROR && isButtonTapped == true) {
           setState(() {
             _loadAdInterstial(0);
             isButtonTapped = false;
@@ -448,10 +473,10 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
 
         /// Once an Interstitial Ad has been dismissed and becomes invalidated,
         /// load a fresh Ad by calling this function.
-        if (result == InterstitialAdResult.DISMISSED ) {
+        if (result == InterstitialAdResult.DISMISSED) {
           isInterstitialAdLoaded = false;
-         Navigator.push(context,
-             MaterialPageRoute(builder: (context) => AttendCallScreenForVc()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => AttendCallScreenForVc()));
           _loadInterstitialAds();
         }
       },

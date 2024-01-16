@@ -68,15 +68,9 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
 
     /// Ad type 1 = google Ad
     _loadVersionString();
-
-    if (adType == "1") {
-      _loadAd();
-    }
-
     /// Ad type 2 = Facebook Ad
-
     if (adType == "2") {
-      _loadInterstitialAds();
+      _showFacebookNativeAd();
     }
 
     /// Ad type 3 = start.io Ad

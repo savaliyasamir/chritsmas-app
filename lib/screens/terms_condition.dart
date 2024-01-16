@@ -4,11 +4,12 @@ import 'package:Santa_prank_call/main.dart';
 import 'package:Santa_prank_call/screens/call_type_screen.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:Santa_prank_call/widget/constant.dart';
+import 'package:facebook_audience_network/facebook_audience_network.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:startapp_sdk/startapp.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:facebook_audience_network/facebook_audience_network.dart';
+
+
 
 String? adType;
 
@@ -26,7 +27,8 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
   late BannerAd _bannerAd;
   bool _isBannerAdReady = false;
   NativeAd? _nativeAd;
-  StartAppInterstitialAd? startAppInterstitialAd;
+
+  // StartAppInterstitialAd? startAppInterstitialAd;
 
   bool _nativeAdIsLoaded = false;
   String? _versionString;
@@ -48,37 +50,38 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
       : 'ca-app-pub-3940256099942544/4411468910';
   final Uri _disclamierLink = Uri.parse(getStorage.read("DisclamierLink"));
   final Uri _termsLink = Uri.parse(getStorage.read("TermsLink"));
-  StartAppBannerAd? mrecAd;
 
-  var startAppSdk = StartAppSdk();
-
-  StartAppBannerAd? bannerAd;
+  // StartAppBannerAd? mrecAd;
+  //
+  // var startAppSdk = StartAppSdk();
+  //
+  // StartAppBannerAd? bannerAd;
 
   @override
   void initState() {
     super.initState();
     FacebookAudienceNetwork.init(
-      testingId: "b9e30477-c79b-4ca4-8253-3f7bb676dd4ec"
-    );
+        testingId: "b9e30477-c79b-4ca4-8253-3f7bb676dd4ec");
     appOpenAdManager.loadAd();
+
     _loadAd();
 
     /// Ad type 1 = google Ad
-      _loadVersionString();
+    _loadVersionString();
 
-
+    if (adType == "1") {
+      _loadAd();
+    }
 
     /// Ad type 2 = Facebook Ad
 
-
-    if(adType == "2"){
+    if (adType == "2") {
       _loadInterstitialAds();
     }
 
-
     /// Ad type 3 = start.io Ad
 
-    if (adType == "3") {
+    /*   if (adType == "3") {
       startAppSdk
           .loadBannerAd(
         StartAppBannerType.MREC,
@@ -93,15 +96,14 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
       }).onError((error, stackTrace) {
         debugPrint("Error loading Mrec ad: $error");
       });
-    }
+    }*/
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Padding(
-        padding: const EdgeInsets.only( bottom: 15),
+        padding: const EdgeInsets.only(bottom: 15),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -182,9 +184,7 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
                       child: Text(
                         "Kindly review our comprehensive Terms \nand Condition",
                         style: TextStyle(
-                          fontSize: 17,
-                            fontWeight: FontWeight.w600
-                        ),
+                            fontSize: 17, fontWeight: FontWeight.w600),
                       ),
                     ),
                   )
@@ -232,9 +232,7 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
                       child: Text(
                         "Please take a moment to review our\nDisclaimer statement",
                         style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600
-                        ),
+                            fontSize: 17, fontWeight: FontWeight.w600),
                       ),
                     ),
                   )
@@ -243,7 +241,6 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
               SizedBox(
                 height: 30,
               ),
-
               GestureDetector(
                 onTap: () async {
                   isButtonTapped = true;
@@ -253,14 +250,14 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
                     );
                   } else {
                     if (adType == "1") {
-                    if(!isAdLoading){
-                      _loadAdInterstial();
-                    }
-                    }
-                    else if (adType == "2") {
+                      if (!isAdLoading) {
+                        _loadAdInterstial();
+                      }
+                    } else if (adType == "2") {
                       _loadInterstitialAds();
                       FacebookInterstitialAd.showInterstitialAd();
-                    } else if (adType == "3") {
+                    }
+                    /*else if (adType == "3") {
                       if (!isLoadingIo) {
                         try {
                           isLoadingIo = true;
@@ -272,6 +269,10 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
                               debugPrint('onAdDisplayed: interstitial');
                             },
                             onAdNotDisplayed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => CallTypeScreen()));
                               debugPrint('onAdNotDisplayed: interstitial');
 
                               // NOTE interstitial ad can be shown only once
@@ -299,15 +300,24 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
                             interstitialAd?.show();
                           });
                         } on StartAppException catch (ex) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CallTypeScreen()));
                           isLoadingIo = false;
                           debugPrint(
                               "Error loading or showing Interstitial ad: ${ex.message}");
                         } catch (error, stackTrace) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CallTypeScreen()));
                           debugPrint(
                               "Error loading or showing Interstitial ad: $error");
                         }
                       }
-                    } else {
+                    } */
+                    else {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -336,20 +346,22 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
               SizedBox(
                 height: 30,
               ),
-
               Container(
-                height: MediaQuery.of(context).size.height * 0.44,
-                width: MediaQuery.of(context).size.width,
-                child: (adType == "1" &&  (_nativeAdIsLoaded && _nativeAd != null))
-                    ? AdWidget(ad: _nativeAd!)
-                    : (adType == "2")
-                        ?  (facebookNativeAdError != true ? facebookNativeAd() : AdWidget(ad: _nativeAd!)  )
-                        : ((adType == "3" && mrecAd != null)
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  width: MediaQuery.of(context).size.width,
+                  child:
+                  (adType == "1" && (_nativeAdIsLoaded && _nativeAd != null))
+                      ? AdWidget(ad: _nativeAd!)
+                      : (adType == "2")
+                      ? (facebookNativeAdError == true &&
+                      (_nativeAdIsLoaded && _nativeAd != null)
+                      ? AdWidget(ad: _nativeAd!)
+                      : currentFacebookNativeAd)
+                      : SizedBox()/*((adType == "3" && mrecAd != null)
                                 ? StartAppBanner(mrecAd!)
                                 : (_nativeAdIsLoaded && _nativeAd != null)
                                     ? SizedBox()
-                                    : null)
-              ),
+                                    : null)*/),
             ],
           ),
         ),
@@ -406,8 +418,9 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
     );
   }
 
-  /// Loads a google native ad.
+  /// Loads a native ad.
 
+  /// Loads a native ad.
   void _loadAd() {
     setState(() {
       _nativeAdIsLoaded = false;
@@ -426,7 +439,6 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
             });
           },
           onAdFailedToLoad: (ad, error) {
-            // ignore: avoid_print
             print('$NativeAd failedToLoad: $error');
             ad.dispose();
           },
@@ -531,9 +543,7 @@ class _TermsConditionScreenState extends State<TermsConditionScreen>
       buttonBorderColor: Colors.white,
       listener: (result, value) {
         print("Native Ad: $result --> $value");
-        if (result == NativeAdResult.ERROR) {
-
-        }
+        if (result == NativeAdResult.ERROR) {}
       },
       keepExpandedWhileLoading: true,
       expandAnimationDuraion: 1000,

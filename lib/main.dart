@@ -11,7 +11,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 final getStorage = GetStorage();
 
 void main() async {
-
   await GetStorage.init();
   PushNotificationService().setupInteractedMessage();
 
@@ -72,3 +71,7 @@ Future<void> requestNotificationPermission() async {
     print("Notification permission denied");
   }
 }
+///chirtsmas:///
+//200577472
+///easy emi:
+///200972507

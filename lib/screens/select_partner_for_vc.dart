@@ -11,7 +11,7 @@ import 'package:facebook_audience_network/ad/ad_interstitial.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:startapp_sdk/startapp.dart';
+// import 'package:startapp_sdk/startapp.dart';
 
 class SelectYourFav extends StatefulWidget {
   const SelectYourFav({Key? key}) : super(key: key);
@@ -23,10 +23,10 @@ class SelectYourFav extends StatefulWidget {
 class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserver{
   late BannerAd _bannerAd;
   bool isInterstitialAdLoaded = false;
-  StartAppInterstitialAd? startAppInterstitialAd;
-  var startAppSdk = StartAppSdk();
-  StartAppBannerAd? startAppBannerAd;
-  StartAppBannerAd? mrecAd;
+  // StartAppInterstitialAd? startAppInterstitialAd;
+  // var startAppSdk = StartAppSdk();
+  // StartAppBannerAd? startAppBannerAd;
+  // StartAppBannerAd? mrecAd;
   bool isAdLoading = false;
   bool isAdLoaded = false;
   bool isButtonTapped = false;
@@ -85,7 +85,7 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
     if(adType == "2"){
       _loadInterstitialAds();
     }
-    if (adType == "3") {
+/*    if (adType == "3") {
       startAppSdk
           .loadBannerAd(
         StartAppBannerType.MREC,
@@ -100,7 +100,7 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
       }).onError((error, stackTrace) {
         debugPrint("Error loading Mrec ad: $error");
       });
-    }
+    }*/
 
     // facebookBannerAd = FacebookBannerAd(
     //   placementId: "IMG_16_9_APP_INSTALL#2312433698835503_2964944860251047",
@@ -271,7 +271,7 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
                     } else if (adType == "2") {
                       _loadInterstitialAds();
                       FacebookInterstitialAd.showInterstitialAd();
-                    } else if (adType == "3" && !isLoadingIo) {
+                    } /*else if (adType == "3" && !isLoadingIo) {
                       try {
                         isLoadingIo = true;
                         await startAppSdk
@@ -319,7 +319,7 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
                         debugPrint(
                             "Error loading or showing Interstitial ad: $error");
                       }
-                    } else {
+                    }*/ else {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) => AttendCallScreenForVc(
                             indexnumber: index,
@@ -362,7 +362,7 @@ class _SelectYourFavState extends State<SelectYourFav> with WidgetsBindingObserv
           width: _bannerAd.size.width.toDouble(),
           height: _bannerAd.size.width.toDouble(),
           child: AdWidget(ad: _bannerAd),
-        ) : (adType == "3" && mrecAd != null)  ? StartAppBanner(mrecAd!) : _facebookBannerAd,
+        ) : adType == "2" ?  _facebookBannerAd : SizedBox(),
       ),
     );
   }

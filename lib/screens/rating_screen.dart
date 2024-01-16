@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_review/in_app_review.dart';
-import 'package:startapp_sdk/startapp.dart';
+// import 'package:startapp_sdk/startapp.dart';
 
 import '../widget/constant.dart';
 
@@ -34,10 +34,10 @@ class _RatingScreenState extends State<RatingScreen>
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
   int _tapCounter = 0;
-  StartAppBannerAd? mrecAd;
+  // StartAppBannerAd? mrecAd;
   bool facebookNativeAdError = false;
-  var startAppSdk = StartAppSdk();
-  StartAppInterstitialAd? startAppInterstitialAd;
+  // var startAppSdk = StartAppSdk();
+  // StartAppInterstitialAd? startAppInterstitialAd;
   final InAppReview inAppReview = InAppReview.instance;
   bool reviewSubmitted = false;
 
@@ -69,12 +69,12 @@ class _RatingScreenState extends State<RatingScreen>
   void initState() {
     super.initState();
     appOpenAdManager.loadAd();
-    startAppSdk.setTestAdsEnabled(true);
+    // startAppSdk.setTestAdsEnabled(true);
     if (adType == "2") {
       _loadInterstitialAds();
       _showFacebookNativeAd();
     }
-    if (adType == "3") {
+   /* if (adType == "3") {
       startAppSdk
           .loadBannerAd(
         StartAppBannerType.MREC,
@@ -89,7 +89,7 @@ class _RatingScreenState extends State<RatingScreen>
       }).onError((error, stackTrace) {
         debugPrint("Error loading Mrec ad: $error");
       });
-    }
+    }*/
 
     WidgetsBinding.instance.addObserver(this);
     _loadAd();
@@ -248,11 +248,11 @@ class _RatingScreenState extends State<RatingScreen>
                                     (_nativeAdIsLoaded && _nativeAd != null)
                                 ? AdWidget(ad: _nativeAd!)
                                 : currentFacebookNativeAd)
-                            : ((adType == "3" && mrecAd != null)
+                            : SizedBox()/*((adType == "3" && mrecAd != null)
                                 ? StartAppBanner(mrecAd!)
                                 : (_nativeAdIsLoaded && _nativeAd != null)
                                     ? SizedBox()
-                                    : null)),
+                                    : null)*/),
               ],
             ),
           ),

@@ -9,7 +9,7 @@ import 'package:facebook_audience_network/ad/ad_interstitial.dart';
 import 'package:facebook_audience_network/facebook_audience_network.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:startapp_sdk/startapp.dart';
+// import 'package:startapp_sdk/startapp.dart';
 
 class AcceptPolicyScreen extends StatefulWidget {
   const AcceptPolicyScreen({Key? key}) : super(key: key);
@@ -23,7 +23,7 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
   NativeAd? _nativeAd;
   bool isInterstitialAdLoaded = false;
   bool isAdLoading = false;
-  StartAppInterstitialAd? startAppInterstitialAd;
+  // StartAppInterstitialAd? startAppInterstitialAd;
   bool _nativeAdIsLoaded = false;
   bool isLoadingIo = false;
 
@@ -31,7 +31,7 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
   bool isButtonTapped = false;
   bool facebookNativeAdError = false;
 
-  var startAppSdk = StartAppSdk();
+  // var startAppSdk = StartAppSdk();
   String? _versionString;
   final String _adUnitId = Platform.isAndroid
       ? InterstialAdID
@@ -41,7 +41,7 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
   int _tapCounter = 0;
-  StartAppBannerAd? mrecAd;
+  // StartAppBannerAd? mrecAd;
   final double _adAspectRatioSmall = (91 / 355);
   final double _adAspectRatioMedium = (370 / 355);
 
@@ -69,22 +69,22 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
 
     /// Ad type 3 = start.io Ad
 
-    if (adType == "3") {
-      startAppSdk
-          .loadBannerAd(
-        StartAppBannerType.MREC,
-        prefs: const StartAppAdPreferences(adTag: 'secondary'),
-      )
-          .then((mrecAd) {
-        setState(() {
-          this.mrecAd = mrecAd;
-        });
-      }).onError<StartAppException>((ex, stackTrace) {
-        debugPrint("Error loading Mrec ad: ${ex.message}");
-      }).onError((error, stackTrace) {
-        debugPrint("Error loading Mrec ad: $error");
-      });
-    }
+    // if (adType == "3") {
+    //   startAppSdk
+    //       .loadBannerAd(
+    //     StartAppBannerType.MREC,
+    //     prefs: const StartAppAdPreferences(adTag: 'secondary'),
+    //   )
+    //       .then((mrecAd) {
+    //     setState(() {
+    //       this.mrecAd = mrecAd;
+    //     });
+    //   }).onError<StartAppException>((ex, stackTrace) {
+    //     debugPrint("Error loading Mrec ad: ${ex.message}");
+    //   }).onError((error, stackTrace) {
+    //     debugPrint("Error loading Mrec ad: $error");
+    //   });
+    // }
 
   }
 
@@ -234,7 +234,7 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
                 } else if (adType == "2") {
                   _loadInterstitialAds();
                   FacebookInterstitialAd.showInterstitialAd();
-                } else if (adType == "3") {
+                } /*else if (adType == "3") {
                   if (!isLoadingIo) {
                     try {
                       isLoadingIo = true;
@@ -281,7 +281,7 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
                           "Error loading or showing Interstitial ad: $error");
                     }
                   }
-                } else {
+                } */else {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -314,12 +314,12 @@ class _AcceptPolicyScreenState extends State<AcceptPolicyScreen>
                 child: (adType == "1" &&  (_nativeAdIsLoaded && _nativeAd != null))
                     ? AdWidget(ad: _nativeAd!)
                     : (adType == "2")
-                    ?  (facebookNativeAdError == true &&  (_nativeAdIsLoaded && _nativeAd != null) ? AdWidget(ad: _nativeAd!) : currentFacebookNativeAd)
-                    : ((adType == "3" && mrecAd != null)
+                    ?  (facebookNativeAdError == true &&  (_nativeAdIsLoaded && _nativeAd != null) ? AdWidget(ad: _nativeAd!) : currentFacebookNativeAd) : SizedBox()
+                 /*   : ((adType == "3" && mrecAd != null)
                     ? StartAppBanner(mrecAd!)
                     : (_nativeAdIsLoaded && _nativeAd != null)
                     ? SizedBox()
-                    : null)
+                    : null)*/
             ),
 
           ],

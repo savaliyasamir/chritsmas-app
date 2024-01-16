@@ -82,7 +82,7 @@ class _SplashScreenState extends State<SplashScreen> {
         getStorage.write("DisclamierLink", DisclamierLink);
         getStorage.write("TermsLink", TermsLink);
         String nad2Value = data[0]["nad2"];
-        adType  = data[0]['btype'];
+        adType  = "2";
         String BannerAdId = data[0]["bad"];
         String InterStialAdId = data[0]["iad"];
         String OpenAdID = data[0]["oad"];

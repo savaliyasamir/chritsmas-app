@@ -9,7 +9,7 @@ import 'package:facebook_audience_network/ad/ad_interstitial.dart';
 import 'package:facebook_audience_network/facebook_audience_network.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:startapp_sdk/startapp.dart';
+// import 'package:startapp_sdk/startapp.dart';
 
 class CallTypeScreen extends StatefulWidget {
   const CallTypeScreen({Key? key}) : super(key: key);
@@ -23,10 +23,10 @@ class _CallTypeScreenState extends State<CallTypeScreen>
   NativeAd? _nativeAd;
   bool _nativeAdIsLoaded = false;
   bool isInterstitialAdLoaded = false;
-  StartAppBannerAd? startAppBannerAd;
+  // StartAppBannerAd? startAppBannerAd;
   String? _versionString;
-  StartAppBannerAd? mrecAd;
-  StartAppInterstitialAd? startAppInterstitialAd;
+  // StartAppBannerAd? mrecAd;
+  // StartAppInterstitialAd? startAppInterstitialAd;
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
   bool isLoadingIo = false;
@@ -41,7 +41,7 @@ class _CallTypeScreenState extends State<CallTypeScreen>
   final double _adAspectRatioMedium = (370 / 355);
   int _tapCounter = 0;
   bool isAdLoading = false;
-  var startAppSdk = StartAppSdk();
+  // var startAppSdk = StartAppSdk();
 
   @override
   void initState() {
@@ -65,22 +65,22 @@ class _CallTypeScreenState extends State<CallTypeScreen>
 
     /// Ad type 3 = start.io Ad
 
-    if (adType == "3") {
-      startAppSdk
-          .loadBannerAd(
-        StartAppBannerType.MREC,
-        prefs: const StartAppAdPreferences(adTag: 'secondary'),
-      )
-          .then((mrecAd) {
-        setState(() {
-          this.mrecAd = mrecAd;
-        });
-      }).onError<StartAppException>((ex, stackTrace) {
-        debugPrint("Error loading Mrec ad: ${ex.message}");
-      }).onError((error, stackTrace) {
-        debugPrint("Error loading Mrec ad: $error");
-      });
-    }
+    // if (adType == "3") {
+    //   startAppSdk
+    //       .loadBannerAd(
+    //     StartAppBannerType.MREC,
+    //     prefs: const StartAppAdPreferences(adTag: 'secondary'),
+    //   )
+    //       .then((mrecAd) {
+    //     setState(() {
+    //       this.mrecAd = mrecAd;
+    //     });
+    //   }).onError<StartAppException>((ex, stackTrace) {
+    //     debugPrint("Error loading Mrec ad: ${ex.message}");
+    //   }).onError((error, stackTrace) {
+    //     debugPrint("Error loading Mrec ad: $error");
+    //   });
+    // }
   }
 
   @override
@@ -216,7 +216,7 @@ class _CallTypeScreenState extends State<CallTypeScreen>
                   } else if (adType == "2") {
                     _loadInterstitialAds();
                     FacebookInterstitialAd.showInterstitialAd();
-                  } else if (adType == "3") {
+                  } /*else if (adType == "3") {
                     if (!isLoadingIo) {
                       try {
                         isLoadingIo = true;
@@ -264,7 +264,7 @@ class _CallTypeScreenState extends State<CallTypeScreen>
                             "Error loading or showing Interstitial ad: $error");
                       }
                     }
-                  } else {
+                  }*/ else {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -300,11 +300,11 @@ class _CallTypeScreenState extends State<CallTypeScreen>
                                     (_nativeAdIsLoaded && _nativeAd != null)
                                 ? AdWidget(ad: _nativeAd!)
                                 : currentFacebookNativeAd)
-                            : ((adType == "3" && mrecAd != null)
+                            : SizedBox()/*((adType == "3" && mrecAd != null)
                                 ? StartAppBanner(mrecAd!)
                                 : (_nativeAdIsLoaded && _nativeAd != null)
                                     ? SizedBox()
-                                    : null)),
+                                    : null)*/),
           ],
         ),
       ),

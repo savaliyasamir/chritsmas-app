@@ -8,7 +8,7 @@ import 'package:facebook_audience_network/ad/ad_interstitial.dart';
 import 'package:facebook_audience_network/facebook_audience_network.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:startapp_sdk/startapp.dart';
+// import 'package:startapp_sdk/startapp.dart';
 
 import 'terms_condition.dart';
 
@@ -25,11 +25,11 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
   bool isInterstitialAdLoaded = false;
-  StartAppBannerAd? bannerAd;
-  StartAppBannerAd? mrecAd;
-  var startAppSdk = StartAppSdk();
+  // StartAppBannerAd? bannerAd;
+  // StartAppBannerAd? mrecAd;
+  // var startAppSdk = StartAppSdk();
   bool isButtonTapped = false;
-  StartAppInterstitialAd? startAppInterstitialAd;
+  // StartAppInterstitialAd? startAppInterstitialAd;
   bool isLoadingIo = false;
   InterstitialAd? _interstitialAd;
   int _tapCounter = 0;
@@ -67,34 +67,34 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
   void initState() {
     super.initState();
     appOpenAdManager.loadAd();
-    startAppSdk.setTestAdsEnabled(true);
+    // startAppSdk.setTestAdsEnabled(true);
     WidgetsBinding.instance.addObserver(this);
     /// Loads a banner ad.
     loadAd();
 
 
-    if (adType == "2") {
-      loadBannerAd();
-    }
+    // if (adType == "2") {
+    //   loadBannerAd();
+    // }
     if (adType == "2") {
       _loadInterstitialAds();
     }
-    if (adType == "3") {
-      startAppSdk
-          .loadBannerAd(
-        StartAppBannerType.MREC,
-        prefs: const StartAppAdPreferences(adTag: 'secondary'),
-      )
-          .then((mrecAd) {
-        setState(() {
-          this.mrecAd = mrecAd;
-        });
-      }).onError<StartAppException>((ex, stackTrace) {
-        debugPrint("Error loading Mrec ad: ${ex.message}");
-      }).onError((error, stackTrace) {
-        debugPrint("Error loading Mrec ad: $error");
-      });
-    }
+    // if (adType == "3") {
+    //   startAppSdk
+    //       .loadBannerAd(
+    //     StartAppBannerType.MREC,
+    //     prefs: const StartAppAdPreferences(adTag: 'secondary'),
+    //   )
+    //       .then((mrecAd) {
+    //     setState(() {
+    //       this.mrecAd = mrecAd;
+    //     });
+    //   }).onError<StartAppException>((ex, stackTrace) {
+    //     debugPrint("Error loading Mrec ad: ${ex.message}");
+    //   }).onError((error, stackTrace) {
+    //     debugPrint("Error loading Mrec ad: $error");
+    //   });
+    // }
   }
 
   int _selectedImageIndex = -1; // Default value indicating no selection
@@ -125,28 +125,28 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
     "assets/download (5).png"
   ];
 
-  Future<void> loadBannerAd() async {
-    try {
-      final bannerAd = await startAppSdk.loadBannerAd(
-        StartAppBannerType.BANNER,
-        prefs: const StartAppAdPreferences(adTag: 'primary'),
-        onAdImpression: () {
-          debugPrint('onAdImpression: banner');
-        },
-        onAdClicked: () {
-          debugPrint('onAdClicked: banner');
-        },
-      );
-
-      setState(() {
-        this.bannerAd = bannerAd;
-      });
-    } on StartAppException catch (ex) {
-      debugPrint("Error loading Banner ad: ${ex.message}");
-    } catch (error) {
-      debugPrint("Error loading Banner ad: $error");
-    }
-  }
+  // Future<void> loadBannerAd() async {
+  //   try {
+  //     final bannerAd = await startAppSdk.loadBannerAd(
+  //       StartAppBannerType.BANNER,
+  //       prefs: const StartAppAdPreferences(adTag: 'primary'),
+  //       onAdImpression: () {
+  //         debugPrint('onAdImpression: banner');
+  //       },
+  //       onAdClicked: () {
+  //         debugPrint('onAdClicked: banner');
+  //       },
+  //     );
+  //
+  //     setState(() {
+  //       this.bannerAd = bannerAd;
+  //     });
+  //   } on StartAppException catch (ex) {
+  //     debugPrint("Error loading Banner ad: ${ex.message}");
+  //   } catch (error) {
+  //     debugPrint("Error loading Banner ad: $error");
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +200,7 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
                             } else if(adType == "2"){
                               _loadInterstitialAds();
                               FacebookInterstitialAd.showInterstitialAd();
-                            } else if (adType == "3" &&   !isLoadingIo){
+                            } /*else if (adType == "3" &&   !isLoadingIo){
                               try {
                                 isLoadingIo = true;
                                 await startAppSdk
@@ -249,7 +249,7 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
                                 debugPrint(
                                     "Error loading or showing Interstitial ad: $error");
                               }
-                            } else{
+                            }*/ else{
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -326,14 +326,17 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
       ),
       bottomNavigationBar: Container(
         alignment: Alignment.center,
-        height: 75,
-        color: Colors.black12,
+        height: 70,
+        color: Colors.white,
 
         child: _isLoaded != false && adType == "1"? SizedBox(
           width: _bannerAd.size.width.toDouble(),
           height: _bannerAd.size.width.toDouble(),
           child: AdWidget(ad: _bannerAd),
-        ) : (adType == "3" && mrecAd != null)  ? StartAppBanner(mrecAd!) : _facebookBannerAd,
+        ) : adType == "2" ? _facebookBannerAd : SizedBox(
+            width: _bannerAd.size.width.toDouble(),
+            height: _bannerAd.size.width.toDouble(),
+            child: AdWidget(ad: _bannerAd),)
       ),
     );
   }

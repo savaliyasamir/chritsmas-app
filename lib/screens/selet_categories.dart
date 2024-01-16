@@ -9,7 +9,7 @@ import 'package:facebook_audience_network/ad/ad_banner.dart';
 import 'package:facebook_audience_network/ad/ad_interstitial.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:startapp_sdk/startapp.dart';
+// import 'package:startapp_sdk/startapp.dart';
 
 import '../widget/constant.dart';
 
@@ -25,8 +25,8 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
     with WidgetsBindingObserver {
   bool isAdLoaded = false;
   bool isInterstitialAdLoaded = false;
-  StartAppInterstitialAd? startAppInterstitialAd;
-  var startAppSdk = StartAppSdk();
+  // StartAppInterstitialAd? startAppInterstitialAd;
+  // var startAppSdk = StartAppSdk();
   bool isAdLoading = false;
   bool isLoadingIo = false;
   List<String> _videoCallerList = [
@@ -38,8 +38,8 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
   ];
   late BannerAd _bannerAd;
   bool isButtonTapped = false;
-  StartAppBannerAd? startAppBannerAd;
-  StartAppBannerAd? mrecAd;
+  // StartAppBannerAd? startAppBannerAd;
+  // StartAppBannerAd? mrecAd;
   final String adUnitId = Platform.isAndroid
       ? getStorage.read("BannerAdId")
       : 'ca-app-pub-3940256099942544/2934735716';
@@ -80,7 +80,7 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
     loadAd();
     appOpenAdManager.loadAd();
 
-    startAppSdk.setTestAdsEnabled(true);
+    // startAppSdk.setTestAdsEnabled(true);
     WidgetsBinding.instance.addObserver(this);
     if (adType == "2") {
       loadBannerAd();
@@ -88,7 +88,7 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
     if (adType == "2") {
       _loadInterstitialAds();
     }
-    if (adType == "3") {
+/*    if (adType == "3") {
       startAppSdk
           .loadBannerAd(
         StartAppBannerType.MREC,
@@ -103,7 +103,7 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
       }).onError((error, stackTrace) {
         debugPrint("Error loading Mrec ad: $error");
       });
-    }
+    }*/
   }
 
   InterstitialAd? interstitialAd;
@@ -172,7 +172,7 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
                             } else if (adType == "2") {
                               _loadInterstitialAds();
                               FacebookInterstitialAd.showInterstitialAd();
-                            } else if (adType == "3" &&  !isLoadingIo) {
+                            } /*else if (adType == "3" &&  !isLoadingIo) {
                               try {
                                 isLoadingIo = true;
                                 await startAppSdk
@@ -220,7 +220,7 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
                                 debugPrint(
                                     "Error loading or showing Interstitial ad: $error");
                               }
-                            } else {
+                            }*/ else {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -245,17 +245,19 @@ class _SeletctCategerioesScreenState extends State<SeletctCategerioesScreen>
               ],
             )),
         bottomNavigationBar: Container(
-          alignment: Alignment.center,
-          height: 75,
-          color: Colors.black12,
+            alignment: Alignment.center,
+            height: 75,
+            color: Colors.white,
 
-          child: _isLoaded != false && adType == "1"? SizedBox(
-            width: _bannerAd.size.width.toDouble(),
-            height: _bannerAd.size.width.toDouble(),
-            child: AdWidget(ad: _bannerAd),
-          ) : (adType == "3" && mrecAd != null)  ? StartAppBanner(mrecAd!) : _facebookBannerAd,
-        ),
-      ),
+            child: _isLoaded != false && adType == "1"? SizedBox(
+              width: _bannerAd.size.width.toDouble(),
+              height: _bannerAd.size.width.toDouble(),
+              child: AdWidget(ad: _bannerAd),
+            ) : adType == "2" ? _facebookBannerAd : SizedBox(
+              width: _bannerAd.size.width.toDouble(),
+              height: _bannerAd.size.width.toDouble(),
+              child: AdWidget(ad: _bannerAd),)
+        ),      ),
     );
   }
 

@@ -11,8 +11,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'terms_condition.dart';
 
-String adUnitId ="ca-app-pub-3940256099942544/6300978111";
-
+String adUnitId = getStorage.read("BannerAdId");
 
 class SelectCountriescreen extends StatefulWidget {
   const SelectCountriescreen({Key? key}) : super(key: key);
@@ -28,10 +27,12 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
   bool isInterstitialAdLoaded = false;
+
   // StartAppBannerAd? bannerAd;
   // StartAppBannerAd? mrecAd;
   // var startAppSdk = StartAppSdk();
   bool isButtonTapped = false;
+
   // StartAppInterstitialAd? startAppInterstitialAd;
   bool isLoadingIo = false;
   InterstitialAd? _interstitialAd;
@@ -43,18 +44,13 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
   bool _isLoaded = false;
   bool facebookBannerAdError = false;
 
-
   @override
   void initState() {
     super.initState();
     appOpenAdManager.loadAd();
     WidgetsBinding.instance.addObserver(this);
 
-
-      _loadBannerAd();
-
-
-
+    _loadBannerAd();
 
     if (adType == "2") {
       loadFacebookBannerAd();
@@ -130,59 +126,60 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      body: Container(
-        color: Colors.transparent,
-        height: MediaQuery.of(context).size.height,
-        child: SingleChildScrollView(
-          physics: NeverScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(20),
-                alignment: Alignment.bottomRight,
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.13,
-                decoration: BoxDecoration(
-                  color: PinkColor,
-                  borderRadius:
-                      BorderRadius.only(bottomLeft: Radius.circular(100)),
+        body: Container(
+          color: Colors.transparent,
+          height: MediaQuery.of(context).size.height,
+          child: SingleChildScrollView(
+            physics: NeverScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(20),
+                  alignment: Alignment.bottomRight,
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.13,
+                  decoration: BoxDecoration(
+                    color: PinkColor,
+                    borderRadius:
+                        BorderRadius.only(bottomLeft: Radius.circular(100)),
+                  ),
+                  child: Text(
+                    "Select the Country",
+                    style: TextStyle(
+                        fontSize: 27,
+                        color: textcolor,
+                        fontWeight: FontWeight.bold),
+                  ),
                 ),
-                child: Text(
-                  "Select the Country",
-                  style: TextStyle(
-                      fontSize: 27,
-                      color: textcolor,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.all(10),
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.78,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 8.0,
-                            mainAxisSpacing: 8.0,
-                            childAspectRatio: 0.68),
-                        itemCount: _text.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return GestureDetector(
-                            onTap: () async {
-                              isButtonTapped = true;
-                              if (adType == "1") {
-                                if (!isAdLoading) {
-                                  _loadAdInterstial();
+                Container(
+                  padding: EdgeInsets.all(10),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.78,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: GridView.builder(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  crossAxisSpacing: 8.0,
+                                  mainAxisSpacing: 8.0,
+                                  childAspectRatio: 0.68),
+                          itemCount: _text.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return GestureDetector(
+                              onTap: () async {
+                                isButtonTapped = true;
+                                if (adType == "1") {
+                                  if (!isAdLoading) {
+                                    _loadAdInterstial();
+                                  }
+                                } else if (adType == "2") {
+                                  _loadInterstitialAds();
+                                  FacebookInterstitialAd.showInterstitialAd();
                                 }
-                              } else if(adType == "2"){
-                                _loadInterstitialAds();
-                                FacebookInterstitialAd.showInterstitialAd();
-                              } /*else if (adType == "3" &&   !isLoadingIo){
+                                /*else if (adType == "3" &&   !isLoadingIo){
                                 try {
                                   isLoadingIo = true;
                                   await startAppSdk
@@ -231,53 +228,54 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
                                   debugPrint(
                                       "Error loading or showing Interstitial ad: $error");
                                 }
-                              }*/ else{
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            SeletctCategerioesScreen()));
-                              }
-                            },
-                            child: GridTile(
-                              child: Container(
-                                padding: EdgeInsets.all(17),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    color: Colors.white),
-                                child: Column(
-                                  children: [
-                                    ClipOval(
-                                      clipBehavior: Clip.antiAlias,
-                                      child: Image.asset(
-                                        _CountrImageList[index],
-                                        width: 70.0,
-                                        height: 70.0,
-                                        fit: BoxFit.fitHeight,
+                              }*/
+                                else {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              SeletctCategerioesScreen()));
+                                }
+                              },
+                              child: GridTile(
+                                child: Container(
+                                  padding: EdgeInsets.all(17),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: Colors.white),
+                                  child: Column(
+                                    children: [
+                                      ClipOval(
+                                        clipBehavior: Clip.antiAlias,
+                                        child: Image.asset(
+                                          _CountrImageList[index],
+                                          width: 70.0,
+                                          height: 70.0,
+                                          fit: BoxFit.fitHeight,
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(height: 8.0),
-                                    Text(
-                                      _text[index],
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15),
-                                    ),
-                                  ],
+                                      SizedBox(height: 8.0),
+                                      Text(
+                                        _text[index],
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              // Display the banner if it is not null
-              //  ( adType == "1") ? StartAppBanner(bannerAd!) : SizedBox(),
-              /*bannerAd != null
+                // Display the banner if it is not null
+                //  ( adType == "1") ? StartAppBanner(bannerAd!) : SizedBox(),
+                /*bannerAd != null
                   ? StartAppBanner(bannerAd!)
                   : ElevatedButton(
                 style: buttonStyle,
@@ -303,34 +301,31 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
                 },
                 child: Text('Show Banner'),
               ),*/
-
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-      bottomNavigationBar: Container(
-        alignment: Alignment.center,
-        height: (_isBannerAdReady) ? _bannerAd.size.height.toDouble() : 75,
-        width: MediaQuery.of(context).size.width,
-        child:  (_isBannerAdReady) ?
-        Container(
-          width: _bannerAd.size.width.toDouble(),
-          height: _bannerAd.size.height.toDouble(),
-          child: AdWidget(ad: _bannerAd),
-        )
-            : (adType == "2")
-            ? (facebookBannerAdError == true && _isBannerAdReady != false
-            ? SizedBox(
-          width: _bannerAd.size.width.toDouble(),
-          height: _bannerAd.size.height.toDouble(),
-          child: AdWidget(ad: _bannerAd),
-        )
-            : _facebookBannerAd )
-            : SizedBox(),
-      )
-    );
+        bottomNavigationBar: Container(
+          alignment: Alignment.center,
+          height: (_isBannerAdReady) ? _bannerAd.size.height.toDouble() : 75,
+          width: MediaQuery.of(context).size.width,
+          child: (_isBannerAdReady)
+              ? Container(
+                  width: _bannerAd.size.width.toDouble(),
+                  height: _bannerAd.size.height.toDouble(),
+                  child: AdWidget(ad: _bannerAd),
+                )
+              : (adType == "2")
+                  ? (facebookBannerAdError == true && _isBannerAdReady != false
+                      ? SizedBox(
+                          width: _bannerAd.size.width.toDouble(),
+                          height: _bannerAd.size.height.toDouble(),
+                          child: AdWidget(ad: _bannerAd),
+                        )
+                      : _facebookBannerAd)
+                  : SizedBox(),
+        ));
   }
-
 
   void _handleTap() {
     _tapCounter++;
@@ -351,7 +346,6 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
             onAdImpression: (ad) {},
             onAdFailedToShowFullScreenContent: (ad, err) {
               ad.dispose();
-
             },
             onAdDismissedFullScreenContent: (ad) {
               setState(() {
@@ -381,6 +375,7 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
       ),
     );
   }
+
   /// google Banner ad
   void _loadBannerAd() {
     _bannerAd = BannerAd(
@@ -402,7 +397,6 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
 
     _bannerAd.load();
   }
-
 
   /// facebook Banner ad
 
@@ -444,11 +438,11 @@ class _SelectCountriescreenState extends State<SelectCountriescreen>
 
         /// Once an Interstitial Ad has been dismissed and becomes invalidated,
         /// load a fresh Ad by calling this function.
-        if(result == InterstitialAdResult.ERROR && isButtonTapped == true){
-         setState(() {
-           _loadAdInterstial();
-           isButtonTapped = false;
-         });
+        if (result == InterstitialAdResult.ERROR && isButtonTapped == true) {
+          setState(() {
+            _loadAdInterstial();
+            isButtonTapped = false;
+          });
         }
         if (result == InterstitialAdResult.DISMISSED) {
           isInterstitialAdLoaded = false;

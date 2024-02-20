@@ -1,5 +1,6 @@
-import 'dart:io';
+// ignore_for_file: sized_box_for_whitespace
 
+import 'dart:io';
 import 'package:Santa_prank_call/screens/selet_categories.dart';
 import 'package:Santa_prank_call/widget/constant.dart';
 import 'package:flutter/material.dart';
@@ -19,16 +20,17 @@ class _ExitScreenState extends State<ExitScreen> {
       body: Stack(
         children: [
           Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              child: Image.asset(
-                "assets/exit_screen12.png",
-              )),
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            child: Image.asset(
+              "assets/exit_screen12.png",
+            ),
+          ),
           Positioned(
             top: MediaQuery.of(context).size.height * 0.53,
             child: Row(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 30,
                 ),
                 GestureDetector(
@@ -41,12 +43,17 @@ class _ExitScreenState extends State<ExitScreen> {
                     width: 150,
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 40,
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>SeletctCategerioesScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SeletctCategerioesScreen(),
+                      ),
+                    );
                   },
                   child: Container(
                     color: Colors.transparent,

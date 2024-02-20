@@ -1,10 +1,8 @@
 import 'dart:io';
 
-import 'package:Santa_prank_call/main.dart';
 import 'package:Santa_prank_call/screens/attendcall_screen.dart';
 import 'package:Santa_prank_call/screens/select_country.dart';
 import 'package:Santa_prank_call/screens/terms_condition.dart';
-import 'package:Santa_prank_call/widget/ads.dart';
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:Santa_prank_call/widget/constant.dart';
 import 'package:facebook_audience_network/ad/ad_banner.dart';
@@ -12,7 +10,6 @@ import 'package:facebook_audience_network/ad/ad_interstitial.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-// import 'package:startapp_sdk/startapp.dart';
 
 class SelectYourFav extends StatefulWidget {
   const SelectYourFav({Key? key}) : super(key: key);
@@ -33,14 +30,14 @@ class _SelectYourFavState extends State<SelectYourFav>
   bool isAdLoading = false;
   bool isAdLoaded = false;
   bool isButtonTapped = false;
-  List<String> _videoCallerUSerList = [
+  final List<String> _videoCallerUSerList = [
     "assets/sant1.png",
     "assets/sant2.png",
     "assets/sant3.png",
     "assets/sant4.png",
     "assets/sant5.png"
   ];
-  int _tapCounter = 0;
+  final int _tapCounter = 0;
   final String _adUnitId = Platform.isAndroid
       ? InterstialAdID
       : 'ca-app-pub-3940256099942544/4411468910';
@@ -102,114 +99,9 @@ class _SelectYourFavState extends State<SelectYourFav>
 
   // FacebookBannerAd? facebookBannerAd;
   // RewardedInterstitialAd? _rewardedInterstitialAd;
-  int _numRewardedInterstitialLoadAttempts = 0;
+  final int _numRewardedInterstitialLoadAttempts = 0;
   InterstitialAd? interstitialAd;
   int? selectedCategoryIndex;
-
-  //
-  // void _createRewardedInterstitialAd() {
-  //   RewardedInterstitialAd.load(
-  //       adUnitId: AdHelper.rewardedInterstitialAd,
-  //       request: AdRequest(),
-  //       rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
-  //         onAdLoaded: (RewardedInterstitialAd ad) {
-  //           print('$ad loaded.');
-  //           _rewardedInterstitialAd = ad;
-  //           _numRewardedInterstitialLoadAttempts = 0;
-  //         },
-  //         onAdFailedToLoad: (LoadAdError error) {
-  //           print('RewardedInterstitialAd failed to load: $error');
-  //           _rewardedInterstitialAd = null;
-  //           _numRewardedInterstitialLoadAttempts += 1;
-  //           if (_numRewardedInterstitialLoadAttempts < maxFailedLoadAttempts) {
-  //             _createRewardedInterstitialAd();
-  //           }
-  //         },
-  //       ));
-  // }
-  //
-  // void _showRewardedInterstitialAd() {
-  //   if (_rewardedInterstitialAd == null) {
-  //     print('Warning: attempt to show rewarded interstitial before loaded.');
-  //     return;
-  //   }
-  //   _rewardedInterstitialAd!.fullScreenContentCallback =
-  //       FullScreenContentCallback(
-  //     onAdShowedFullScreenContent: (RewardedInterstitialAd ad) =>
-  //         print('$ad onAdShowedFullScreenContent.'),
-  //     onAdDismissedFullScreenContent: (RewardedInterstitialAd ad) {
-  //       print('$ad onAdDismissedFullScreenContent.');
-  //
-  //       ad.dispose();
-  //
-  //       _createRewardedInterstitialAd();
-  //       Navigator.push(context,
-  //           MaterialPageRoute(builder: (context) => AttendCallScreenForVc()));
-  //     },
-  //     onAdFailedToShowFullScreenContent:
-  //         (RewardedInterstitialAd ad, AdError error) {
-  //       print('$ad onAdFailedToShowFullScreenContent: $error');
-  //       ad.dispose();
-  //       _createRewardedInterstitialAd();
-  //     },
-  //   );
-  //
-  //   _rewardedInterstitialAd!.setImmersiveMode(true);
-  //   _rewardedInterstitialAd!.show(
-  //       onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-  //     print('$ad with reward $RewardItem(${reward.amount}, ${reward.type})');
-  //   });
-  //   _rewardedInterstitialAd = null;
-  // }
-
-  // void loadInterstitial() {
-  //   InterstitialAd.load(
-  //     adUnitId: "ca-app-pub-3940256099942544/1033173712",
-  //     request: const AdRequest(),
-  //     adLoadCallback: InterstitialAdLoadCallback(
-  //       onAdLoaded: (ad) {
-  //         print("Ad Loaded");
-  //         setState(() {
-  //           interstitialAd = ad;
-  //           isInterstitialAdLoaded = true;
-  //           _showInterstitialAd();
-  //         });
-  //       },
-  //       onAdFailedToLoad: (error) {
-  //         print("Ad Failed to Load");
-  //       },
-  //     ),
-  //   );
-  // }
-  //
-  // void _showInterstitialAd() {
-  //   if (interstitialAd == null) {
-  //     print('Warning: attempt to show interstitial before loaded.');
-  //     return;
-  //   }
-  //   interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
-  //     onAdShowedFullScreenContent: (InterstitialAd ad) =>
-  //         print('ad onAdShowedFullScreenContent.'),
-  //     onAdWillDismissFullScreenContent: (InterstitialAd ad) {
-  //       ad.dispose();
-  //       Navigator.push(context,
-  //           MaterialPageRoute(builder: (context) => AttendCallscreen()));
-  //     },
-  //     onAdDismissedFullScreenContent: (InterstitialAd ad) {
-  //       ad.dispose();
-  //       Navigator.push(context,
-  //           MaterialPageRoute(builder: (context) => AttendCallscreen()));
-  //       print('$ad onAdDismissedFullScreenContent.');
-  //     },
-  //     onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
-  //       Navigator.pop(context);
-  //       print('$ad onAdFailedToShowFullScreenContent: $error');
-  //       ad.dispose();
-  //     },
-  //   );
-  //   interstitialAd!.show();
-  //   interstitialAd = null;
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -219,14 +111,14 @@ class _SelectYourFavState extends State<SelectYourFav>
             height: MediaQuery.of(context).size.height,
             child: Column(children: [
               Container(
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 alignment: Alignment.bottomRight,
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 0.13,
                 decoration: BoxDecoration(
                   color: PinkColor,
                   borderRadius:
-                      BorderRadius.only(bottomLeft: Radius.circular(100)),
+                      const BorderRadius.only(bottomLeft: Radius.circular(100)),
                 ),
                 child: Text(
                   "Choose your Favourite\nfor video call",
@@ -313,8 +205,8 @@ class _SelectYourFavState extends State<SelectYourFav>
                       child: Stack(
                         children: [
                           Container(
-                              margin: EdgeInsets.only(left: 10, right: 10),
-                              padding: EdgeInsets.all(10),
+                              margin: const EdgeInsets.only(left: 10, right: 10),
+                              padding: const EdgeInsets.all(10),
                               child: Image.asset(_videoCallerUSerList[index])),
                           Positioned(
                               top: 50,
@@ -353,7 +245,7 @@ class _SelectYourFavState extends State<SelectYourFav>
             child: AdWidget(ad: _bannerAd),
           )
               : _facebookBannerAd )
-              : SizedBox(),
+              : const SizedBox(),
         )
     );
   }
@@ -362,7 +254,7 @@ class _SelectYourFavState extends State<SelectYourFav>
   void _loadBannerAd() {
     _bannerAd = BannerAd(
       adUnitId: adUnitId,
-      request: AdRequest(),
+      request: const AdRequest(),
       size: AdSize.banner,
       listener: BannerAdListener(
         onAdLoaded: (_) {
@@ -383,7 +275,7 @@ class _SelectYourFavState extends State<SelectYourFav>
 
   /// facebook Banner ad
 
-  Widget _facebookBannerAd = SizedBox(width: 0, height: 0);
+  Widget _facebookBannerAd = const SizedBox(width: 0, height: 0);
 
   void loadFacebookBannerAd() {
     setState(() {

@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable, sized_box_for_whitespace, avoid_print
+
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:Santa_prank_call/widget/video_screen.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +15,12 @@ class AttendCallScreenForVc extends StatefulWidget {
   State<AttendCallScreenForVc> createState() => _AttendCallScreenForVcState();
 }
 
-class _AttendCallScreenForVcState extends State<AttendCallScreenForVc> with WidgetsBindingObserver{
+class _AttendCallScreenForVcState extends State<AttendCallScreenForVc>
+    with WidgetsBindingObserver {
   late AudioPlayer audioPlayer;
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
+
   @override
   void initState() {
     super.initState();
@@ -60,19 +64,21 @@ class _AttendCallScreenForVcState extends State<AttendCallScreenForVc> with Widg
                       audioPlayer.dispose();
 
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => VideoPlayerScreen(
-                                    videoUrl: widget.indexnumber == 0
-                                        ? "assets/sanat_vc1.mp4"
-                                        : widget.indexnumber == 1
-                                            ? "assets/santa_vc2.mp4"
-                                            : widget.indexnumber == 2
-                                                ? "assets/santa_vc3.mp4"
-                                                : widget.indexnumber == 3
-                                                    ? "assets/santa_vc4.mp4"
-                                                    : "assets/sanat_vc1.mp4",
-                                  )));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => VideoPlayerScreen(
+                            videoUrl: widget.indexnumber == 0
+                                ? "assets/sanat_vc1.mp4"
+                                : widget.indexnumber == 1
+                                    ? "assets/santa_vc2.mp4"
+                                    : widget.indexnumber == 2
+                                        ? "assets/santa_vc3.mp4"
+                                        : widget.indexnumber == 3
+                                            ? "assets/santa_vc4.mp4"
+                                            : "assets/sanat_vc1.mp4",
+                          ),
+                        ),
+                      );
                     },
                     child: Image.asset(
                       "assets/attend_call.png",
@@ -81,24 +87,26 @@ class _AttendCallScreenForVcState extends State<AttendCallScreenForVc> with Widg
                     ),
                   )),
               Positioned(
-                  top: MediaQuery.of(context).size.height * 0.5,
-                  left: 15,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Image.asset(
-                      "assets/cut_call.png",
-                      height: 90,
-                      width: 180,
-                    ),
-                  )),
+                top: MediaQuery.of(context).size.height * 0.5,
+                left: 15,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Image.asset(
+                    "assets/cut_call.png",
+                    height: 90,
+                    width: 180,
+                  ),
+                ),
+              ),
             ],
           ),
         ],
       ),
     );
   }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // TODO: implement didChangeAppLifecycleState
@@ -112,6 +120,7 @@ class _AttendCallScreenForVcState extends State<AttendCallScreenForVc> with Widg
       isPaused = false;
     }
   }
+
   Future<void> _vibrateFor30Seconds() async {
     // Check if the device supports vibration
     bool? hasVibrator = await Vibration.hasVibrator();

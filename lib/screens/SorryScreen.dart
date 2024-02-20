@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:Santa_prank_call/widget/appOpenAdManager.dart';
 import 'package:Santa_prank_call/widget/constant.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +30,7 @@ class _SorryScreenState extends State<SorryScreen> with WidgetsBindingObserver{
             child: Text("We are updating soon..",
                 style: TextStyle(color: textcolor, fontSize: 30)),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           GestureDetector(
@@ -72,7 +74,6 @@ class _SorryScreenState extends State<SorryScreen> with WidgetsBindingObserver{
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-
     super.dispose();
   }
 }

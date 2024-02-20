@@ -1,3 +1,5 @@
+// ignore_for_file: sized_box_for_whitespace
+
 import 'package:Santa_prank_call/screens/rating_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -13,16 +15,16 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
     return await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('Are you sure?'),
-            content: Text('Do you want to exit the app?'),
+            title: const Text('Are you sure?'),
+            content: const Text('Do you want to exit the app?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text('No'),
+                child: const Text('No'),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text('Yes'),
+                child: const Text('Yes'),
               ),
             ],
           ),
@@ -35,7 +37,7 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
     Future.delayed(const Duration(seconds: 3), () {
       // getStorage.read("isLogin") == true ?  Navigator.push(context, MaterialPageRoute(builder: (context)=>UserForVideocallList())) :
       Navigator.push(
-          context, MaterialPageRoute(builder: (context) => RatingScreen()));
+          context, MaterialPageRoute(builder: (context) => const RatingScreen()));
     });
     super.initState();
   }
